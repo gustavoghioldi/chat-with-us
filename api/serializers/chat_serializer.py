@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from chats.models import ChatModel
-from agents.models import AgentModel
+from chats.services import ChatService
+
 class ChatSerializer(serializers.Serializer):
     agent = serializers.CharField(max_length=100)
     message = serializers.CharField(max_length=200)
@@ -8,6 +8,5 @@ class ChatSerializer(serializers.Serializer):
     
     def validate(self, attrs):
         if not "session_id" in attrs:
-            agent = AgentModel.objects.get(name = attrs["agent"])
-            attrs["session_id"] = ChatModel.objects.create(agent = agent).pk
+            attrs["session_id"] = ChatService.new(attrs["agent"])
         return super().validate(attrs)

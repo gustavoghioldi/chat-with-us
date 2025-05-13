@@ -1,0 +1,30 @@
+{% extends "admin/change_form.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script>
+        document.addEventListener("DOMContentLoaded",  () => {
+            const categoryField = document.querySelector("#id_category");
+            const textField = document.querySelector(".field-text");
+            const urlField = document.querySelector(".field-url");
+
+            textField.setAttribute("hidden", "true");
+            urlField.setAttribute("hidden", "true");
+
+            const toggleReadOnly= () => {
+                if (categoryField.value === "website") {
+                    textField.setAttribute("hidden", "true");
+                    urlField.removeAttribute("hidden");
+                } 
+
+                if (categoryField.value === "plain_document") {
+                    textField.removeAttribute("hidden");
+                    urlField.setAttribute("hidden", "true");
+                } 
+            }
+
+            categoryField.addEventListener("change", toggleReadOnly);
+            toggleReadOnly();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "admin/change_form.html" %}
+
+{% block submit_buttons_bottom %}
+    <div style="font-size: 20px; font-weight: bold; color: #afd0f3; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px;">Chat:</div> 
+    {% for content in original.content.data %}
+            <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <div style="font-size: 12px; color: #888;">HORA: {{ content.datetime }}</div>
+                <div style="margin-top: 5px;">
+                    <strong style="color: #007bff;">{{ original.agent.name }}:</strong>
+                    <span>{{ content.request }}</span>
+                </div>
+                <div style="margin-top: 5px;">
+                    <strong style="color: #28a745;">Cliente:</strong>
+                    <span>{{ content.response }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {{ block.super }}
+{% endblock %}
