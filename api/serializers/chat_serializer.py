@@ -9,4 +9,6 @@ class ChatSerializer(serializers.Serializer):
     def validate(self, attrs):
         if not "session_id" in attrs:
             attrs["session_id"] = ChatService.new(attrs["agent"])
+            attrs["new"] = True
+    
         return super().validate(attrs)

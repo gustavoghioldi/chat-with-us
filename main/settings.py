@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     ##libs
     'rest_framework',
     #apps
+    "analysis",
     'agents',
     'knowledge',
     'chats',
@@ -131,4 +132,5 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-IA_MODEL = ""
+IA_MODEL = "llama3.2:3b"
+IA_DB =  "postgresql+psycopg://ai:ai@localhost:5532/ai"
