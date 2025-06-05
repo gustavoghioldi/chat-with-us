@@ -6,12 +6,12 @@ asgiref==3.8.1
 billiard==4.2.1
 celery==5.5.2
 certifi==2025.4.26
-click==8.2.0
+click==8.1.8
 click-didyoumean==0.3.1
 click-plugins==1.1.1
 click-repl==0.3.0
 distro==1.9.0
-Django==5.2.1
+Django==4.2.21
 django-filter==25.1
 djangorestframework==3.16.0
 docstring_parser==0.16
@@ -30,7 +30,7 @@ Markdown==3.8
 markdown-it-py==3.0.0
 mdurl==0.1.2
 nltk==3.9.1
-numpy==2.2.5
+numpy==2.0.2
 ollama==0.4.8
 openai==1.78.0
 packaging==25.0
@@ -38,7 +38,7 @@ pgvector==0.4.1
 pillow==11.2.1
 prompt_toolkit==3.0.51
 psycopg==3.2.8
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.9
 pydantic==2.11.4
 pydantic-settings==2.9.1
 pydantic_core==2.33.2

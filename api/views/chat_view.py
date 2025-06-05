@@ -13,12 +13,14 @@ class ChatView(APIView):
             agent = serializer.validated_data['agent']
             message = serializer.validated_data['message']
             session_id = serializer.validated_data.get('session_id')
+            agent_instance = serializer.validated_data.get('agent_instance') 
             agent_service = AgentService(agent)
-            text, session_id = agent_service.send_message(message, session_id)
+            text, session_id, agent_instance = agent_service.send_message(message, session_id, agent_instance)
             response = {
                 'agent': agent,
                 'message': message,
                 'session_id': session_id,
+                'agent_instance': agent_instance,
                 'response': text
             }
             chat_service = ChatService(session_id)

@@ -11,7 +11,7 @@ class ChatService:
         agent: AgentModel = AgentModel.objects.get(name = agent_name)
         return ChatModel.objects.create(agent = agent).pk
 
-    def append_content(self, session_id:str, request:str, response:str)->None:
+    def append_content(self, session_id:str ,request:str, response:str)->None:
         chat: ChatModel = ChatModel.objects.get(session_id=session_id)
         ContentChatModel.objects.create(chat=chat, request=request, response=response)
         

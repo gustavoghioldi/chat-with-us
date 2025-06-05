@@ -1,0 +1,3 @@
+- todo el codigo debe ser en ingles
+- usar snake_case para archivos, funciones, metodos y variables
+- user CamelCase para el nombre de las clases
