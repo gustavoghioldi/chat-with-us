@@ -3,6 +3,7 @@ from agno.models.ollama import Ollama
 from pydantic import BaseModel, Field
 from typing import Literal
 from main.settings import IA_MODEL
+
 class SentimientScript(BaseModel):
     sentimient: Literal["POSITIVO", "NEGATIVO", "NEUTRO"] = Field(
         ..., 
