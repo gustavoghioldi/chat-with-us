@@ -34,14 +34,14 @@ class AgentService:
         
             
 
-    def send_message(self, message: str, session_id:str, user_id:str, clean_respose:bool=True) -> str:
+    def send_message(self, message: str, session_id:str,clean_respose:bool=True) -> str:
         """
         Send a message to the agent and get a response.
         """
-        response = self.__agent.run(message, session_id=str(session_id), user_id=str(user_id))
+        response = self.__agent.run(message, session_id=str(session_id), user_id=str(session_id))
         if clean_respose:
-            response = self.__clean_response(response.content), response.session_id, response.agent_id
-        return response[0] , response[1], response[2]
+            response = self.__clean_response(response.content), response.session_id
+        return response[0] , response[1]
     
     def __clean_response(self, response:str)-> str:
         return re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
