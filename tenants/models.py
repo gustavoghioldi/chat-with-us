@@ -9,7 +9,15 @@ class TenantModel(AppModel):
     """
     name = models.CharField(max_length=255, unique=True, help_text="Nombre del inquilino")
     description = models.TextField(blank=True, null=True, help_text="Descripción del inquilino")
-    
+    model = models.CharField(
+        max_length=50, 
+        choices=[
+            ('ollama', 'OLLAMA'),
+            ('bedrock', 'BEDROCK'),
+        ], 
+        default='ollama',
+    )
+
     def __str__(self):
         return self.name
     

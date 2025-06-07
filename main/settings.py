@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'agents',
     'knowledge',
     'chats',
+    'tenants',
 ]
 
 MIDDLEWARE = [
