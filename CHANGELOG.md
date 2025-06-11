@@ -7,11 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 2025-06-11 16:15:02
+### 2025-06-11 16:18:01
 - feature
   Changed files:
+  - .git-hooks/update-changelog.py
+  - .pre-commit-config.yaml
   - CHANGELOG.md
-
 
 
 

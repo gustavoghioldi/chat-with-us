@@ -26,9 +26,28 @@ def get_commit_message():
     return None
 
 
+def has_real_changes(changed_files):
+    """Check if there are actual code changes, ignoring formatting only changes."""
+    if not changed_files:
+        return False
+
+    # Files to ignore when considering "real" changes
+    ignore_files = {
+        "CHANGELOG.md",  # Ignore the changelog itself
+        ".pre-commit-config.yaml",  # Ignore pre-commit config changes
+    }
+
+    # Filter out empty entries and ignored files
+    real_changes = [f for f in changed_files if f and f not in ignore_files]
+    return len(real_changes) > 0
+
+
 def update_changelog(commit_msg, changed_files):
     """Update the CHANGELOG.md file with the new commit information."""
     if not commit_msg or commit_msg.startswith("Merge"):
+        return
+
+    if not has_real_changes(changed_files):
         return
 
     changelog_path = "CHANGELOG.md"

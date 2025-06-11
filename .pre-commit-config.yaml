@@ -1,14 +1,4 @@
 repos:
--   repo: local
-    hooks:
-    -   id: update-changelog
-        name: Update Changelog
-        entry: .git-hooks/update-changelog.py
-        language: python
-        pass_filenames: false
-        stages: [pre-commit]
-        always_run: true
-
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
@@ -29,3 +19,13 @@ repos:
     hooks:
     -   id: isort
         args: ["--profile", "black"]
+
+-   repo: local
+    hooks:
+    -   id: update-changelog
+        name: Update Changelog
+        entry: .git-hooks/update-changelog.py
+        language: python
+        pass_filenames: false
+        stages: [pre-commit]
+        always_run: true
