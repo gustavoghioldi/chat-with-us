@@ -19,13 +19,3 @@ repos:
     hooks:
     -   id: isort
         args: ["--profile", "black"]
-
--   repo: local
-    hooks:
-    -   id: update-changelog
-        name: Update Changelog
-        entry: .git-hooks/update-changelog.py
-        language: python
-        pass_filenames: false
-        stages: [pre-commit]
-        always_run: true
