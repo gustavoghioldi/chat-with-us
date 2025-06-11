@@ -17,6 +17,19 @@ def get_staged_files():
     return result.stdout.strip().split("\n")
 
 
+def get_short_commit_hash():
+    """Get the hash of the commit being created."""
+    import subprocess
+
+    # Get the hash of the last commit (parent of current commit)
+    result = subprocess.run(
+        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True
+    )
+    if result.returncode == 0:
+        return result.stdout.strip()
+    return None
+
+
 def get_commit_message():
     """Get the commit message from the COMMIT_EDITMSG file."""
     commit_msg_file = os.path.join(".git", "COMMIT_EDITMSG")
@@ -80,7 +93,13 @@ def update_changelog(commit_msg, changed_files):
 
     # Format the new entry
     date_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    new_entry = f"\n### {date_str}\n"
+    commit_hash = get_short_commit_hash()
+
+    new_entry = f"\n### {date_str}"
+    if commit_hash:
+        new_entry += f" - [{commit_hash}]"
+    new_entry += "\n"
+
     new_entry += f"- {commit_msg}\n"
     if changed_files:
         new_entry += "  Changed files:\n"
@@ -105,10 +124,13 @@ def main():
         return 1
 
     changed_files = get_staged_files()
-    update_changelog(commit_msg, changed_files)
 
-    # Stage the updated CHANGELOG.md
-    os.system("git add CHANGELOG.md")
+    # Only update if there are real changes
+    if has_real_changes(changed_files):
+        update_changelog(commit_msg, changed_files)
+        # Stage the updated CHANGELOG.md
+        os.system("git add CHANGELOG.md")
+
     return 0
 
 
