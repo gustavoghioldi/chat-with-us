@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### 2025-06-11 16:18:36
+- feature
+  Changed files:
+  - .git-hooks/update-changelog.py
+
+
 ### 2025-06-11 16:18:01
 - feature
   Changed files:
