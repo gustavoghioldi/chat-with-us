@@ -17,10 +17,14 @@ logger = logging.getLogger(__name__)
 
 class AgentService:
     def __init__(self, agent_name: str) -> None:
-        agent_model = AgentModel.objects.get(name=agent_name)
+        from agents.services.agent_cache_service import AgentCacheService
+
+        # Obtener el agente del caché
+        agent_model = AgentCacheService.get_agent(agent_name)
+        if agent_model is None:
+            raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
 
         knowledge_service = DocumentKnowledgeBaseService(agent_name)
-
         storage_service = AgentSessionService()
 
         self.__agent = Agent(
