@@ -10,6 +10,7 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
 - 🎯 Sentiment Analysis
 - 👥 Multi-tenant Support
 - 📊 Chat Analytics
+- 📝 Automated Changelog
 
 ## Tech Stack
 
@@ -87,6 +88,42 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
    ```
 
 The application will be available at `http://localhost:8000`
+
+## Development Workflow
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to maintain code quality and documentation. The following hooks are configured:
+
+1. **Code Quality**
+   - Black for code formatting
+   - isort for import sorting
+   - flake8 for code linting
+
+2. **Automated Changelog**
+   - Every commit automatically updates `CHANGELOG.md`
+   - Changes are categorized and dated
+   - Modified files are tracked
+
+3. **Other Checks**
+   - Trailing whitespace removal
+   - End of file fixing
+   - YAML validation
+   - Large file checks
+
+### Using the Changelog
+
+The `CHANGELOG.md` file is automatically updated with every commit. The changes are organized in the following format:
+
+```markdown
+### YYYY-MM-DD HH:MM:SS
+- Commit message
+  Changed files:
+  - file1.py
+  - file2.py
+```
+
+This helps track changes and maintain a clear project history.
 
 ## Documentation
 
