@@ -7,65 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### 2025-06-11 16:14:36
+### 2025-06-11 16:15:02
 - feature
   Changed files:
   - CHANGELOG.md
 
 
-### 2025-06-11 16:14:32
-- feature
-  Changed files:
-
-
-### 2025-06-11 16:13:00
-- wio
-  Changed files:
-  - .git-hooks/update-changelog.py
-  - .pre-commit-config.yaml
-  - .pre-commit-config.yaml.new
-  - CHANGELOG.md
-  - readme.md
-
-
-### 2025-06-11 16:12:46
-- wio
-  Changed files:
-  - .git-hooks/update-changelog.py
-  - .pre-commit-config.yaml
-  - .pre-commit-config.yaml.new
-  - CHANGELOG.md
-  - readme.md
-
-
-### 2025-06-11 16:11:38
-- wio
-  Changed files:
-  - .git-hooks/update-changelog.py
-  - .pre-commit-config.yaml
-  - .pre-commit-config.yaml.new
-  - CHANGELOG.md
-  - readme.md
-
-
-### 2025-06-11 16:11:25
-- wio
-  Changed files:
-  - .git-hooks/update-changelog.py
-  - .pre-commit-config.yaml
-  - .pre-commit-config.yaml.new
-  - CHANGELOG.md
-  - readme.md
-
-
-### 2025-06-11 16:11:17
-- wio
-  Changed files:
-  - .git-hooks/update-changelog.py
-  - .pre-commit-config.yaml
-  - .pre-commit-config.yaml.new
-  - CHANGELOG.md
-  - readme.md
 
 
 ### Added
