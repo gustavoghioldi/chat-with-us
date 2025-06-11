@@ -7,24 +7,48 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='TenantModel',
+            name="TenantModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(help_text='Nombre del inquilino', max_length=255, unique=True)),
-                ('description', models.TextField(blank=True, help_text='Descripción del inquilino', null=True)),
-                ('model', models.CharField(choices=[('ollama', 'OLLAMA'), ('bedrock', 'BEDROCK')], default='ollama', max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "name",
+                    models.CharField(
+                        help_text="Nombre del inquilino", max_length=255, unique=True
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True, help_text="Descripción del inquilino", null=True
+                    ),
+                ),
+                (
+                    "model",
+                    models.CharField(
+                        choices=[("ollama", "OLLAMA"), ("bedrock", "BEDROCK")],
+                        default="ollama",
+                        max_length=50,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Tenant',
-                'verbose_name_plural': 'Tenants',
-                'ordering': ['name'],
+                "verbose_name": "Tenant",
+                "verbose_name_plural": "Tenants",
+                "ordering": ["name"],
             },
         ),
     ]

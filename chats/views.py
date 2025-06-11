@@ -1,3 +1,4 @@
-from django.shortcuts import render
+"""Views for the chats app.
 
-# Create your views here.
+This module will contain views for rendering chat-related pages and templates.
+"""

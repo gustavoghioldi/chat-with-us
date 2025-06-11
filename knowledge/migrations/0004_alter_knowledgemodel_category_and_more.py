@@ -6,28 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('knowledge', '0003_knowledgemodel_delete_knowledgepdfmodel_and_more'),
+        ("knowledge", "0003_knowledgemodel_delete_knowledgepdfmodel_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='knowledgemodel',
-            name='category',
-            field=models.CharField(choices=[('plain_document', 'plain_document'), ('website', 'website')], max_length=50),
+            model_name="knowledgemodel",
+            name="category",
+            field=models.CharField(
+                choices=[("plain_document", "plain_document"), ("website", "website")],
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='knowledgemodel',
-            name='description',
+            model_name="knowledgemodel",
+            name="description",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='knowledgemodel',
-            name='text',
+            model_name="knowledgemodel",
+            name="text",
             field=models.TextField(blank=True),
         ),
         migrations.AlterField(
-            model_name='knowledgemodel',
-            name='url',
+            model_name="knowledgemodel",
+            name="url",
             field=models.URLField(blank=True),
         ),
     ]

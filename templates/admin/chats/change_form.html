@@ -2,7 +2,7 @@
 
 {% block submit_buttons_bottom %}
 
-<div style="font-size: 20px; font-weight: bold; color: #afd0f3; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px;">Chat:</div> 
+<div style="font-size: 20px; font-weight: bold; color: #afd0f3; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2px;">Chat:</div>
     {{ extra_data.content_chats }}
     {% for content in content_chats %}
             <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
@@ -15,12 +15,10 @@
                     <strong style="color: #007bff;">{{ content.content_chat.chat.agent.name }}:</strong>
                     <span>{{ content.content_chat.response }}</span>
                 </div>
-                
+
             </div>
         {% endfor %}
     </div>
 
     <!-- {{ block.super }} -->
 {% endblock %}
-
-

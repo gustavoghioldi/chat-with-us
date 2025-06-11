@@ -15,12 +15,12 @@
                 if (categoryField.value === "website") {
                     textField.setAttribute("hidden", "true");
                     urlField.removeAttribute("hidden");
-                } 
+                }
 
                 if (categoryField.value === "plain_document") {
                     textField.removeAttribute("hidden");
                     urlField.setAttribute("hidden", "true");
-                } 
+                }
             }
 
             categoryField.addEventListener("change", toggleReadOnly);

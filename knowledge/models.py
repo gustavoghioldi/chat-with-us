@@ -1,10 +1,12 @@
 from main.models import AppModel, models
+
 # Create your models here.
+
 
 class KnowledgeModel(AppModel):
     CHOICES = [
-        ('plain_document', 'plain_document'),
-        ('website', 'website'),
+        ("plain_document", "plain_document"),
+        ("website", "website"),
     ]
 
     name = models.CharField(max_length=255, unique=True)

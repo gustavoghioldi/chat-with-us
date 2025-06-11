@@ -7,26 +7,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('chats', '0004_alter_chatmodel_content'),
+        ("chats", "0004_alter_chatmodel_content"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='chatmodel',
-            name='content',
+            model_name="chatmodel",
+            name="content",
         ),
         migrations.CreateModel(
-            name='ContentChatModel',
+            name="ContentChatModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('request', models.TextField()),
-                ('response', models.TextField()),
-                ('chat', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='chats.chatmodel')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("request", models.TextField()),
+                ("response", models.TextField()),
+                (
+                    "chat",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="chats.chatmodel",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

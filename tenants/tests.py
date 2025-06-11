@@ -1,3 +1,3 @@
-from django.test import TestCase
+"""Test module for tenants app."""
 
-# Create your tests here.
+# Add test cases when needed

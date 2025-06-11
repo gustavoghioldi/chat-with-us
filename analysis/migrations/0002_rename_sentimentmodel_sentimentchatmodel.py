@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('analysis', '0001_initial'),
-        ('chats', '0005_remove_chatmodel_content_contentchatmodel'),
+        ("analysis", "0001_initial"),
+        ("chats", "0005_remove_chatmodel_content_contentchatmodel"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='SentimentModel',
-            new_name='SentimentChatModel',
+            old_name="SentimentModel",
+            new_name="SentimentChatModel",
         ),
     ]

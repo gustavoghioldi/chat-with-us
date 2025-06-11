@@ -6,30 +6,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('knowledge', '0002_knowledgepdfmodel_and_more'),
+        ("knowledge", "0002_knowledgepdfmodel_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='KnowledgeModel',
+            name="KnowledgeModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('url', models.URLField()),
-                ('text', models.TextField()),
-                ('description', models.TextField()),
-                ('category', models.CharField(choices=[('plain_document', 'plain_document')], max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=255, unique=True)),
+                ("url", models.URLField()),
+                ("text", models.TextField()),
+                ("description", models.TextField()),
+                (
+                    "category",
+                    models.CharField(
+                        choices=[("plain_document", "plain_document")], max_length=50
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.DeleteModel(
-            name='KnowledgePDFModel',
+            name="KnowledgePDFModel",
         ),
         migrations.DeleteModel(
-            name='KnowledgeTextModel',
+            name="KnowledgeTextModel",
         ),
     ]

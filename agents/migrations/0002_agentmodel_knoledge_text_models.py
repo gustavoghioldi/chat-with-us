@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('agents', '0001_initial'),
-        ('knowledge', '0003_knowledgemodel_delete_knowledgepdfmodel_and_more'),
+        ("agents", "0001_initial"),
+        ("knowledge", "0003_knowledgemodel_delete_knowledgepdfmodel_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='agentmodel',
-            name='knoledge_text_models',
-            field=models.ManyToManyField(blank=True, to='knowledge.knowledgemodel'),
+            model_name="agentmodel",
+            name="knoledge_text_models",
+            field=models.ManyToManyField(blank=True, to="knowledge.knowledgemodel"),
         ),
     ]

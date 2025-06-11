@@ -1,6 +1,8 @@
 agno==1.4.6
 amqp==5.3.1
 annotated-types==0.7.0
+python-dotenv==1.1.0
+django-debug-toolbar==4.3.0
 anyio==4.9.0
 asgiref==3.8.1
 billiard==4.2.1
