@@ -24,6 +24,7 @@ class ChatView(APIView):
                 "session_id": session_id,
                 "response": text,
             }
+
             chat_service = ChatService(session_id)
             chat_service.append_content(
                 session_id=session_id, request=message, response=response["response"]

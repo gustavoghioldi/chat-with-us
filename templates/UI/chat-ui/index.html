@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat con Voz a Texto</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="input-container">
+            <input type="text" id="textInput" placeholder="Escribe un mensaje...">
+            <button id="sendButton">Enviar</button>
+            <button id="startVoice" class="voice-btn">🎤</button>
+        </div>
+        <div id="voiceStatus" class="voice-status"></div>
+    </div>
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

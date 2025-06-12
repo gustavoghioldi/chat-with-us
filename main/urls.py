@@ -17,15 +17,21 @@ Including another URLconf
 
 import os
 
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+
+from api.views.chat_ui_view import ChatUIView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("api.urls")),
+    path("", ChatUIView.as_view(), name="chat-ui"),
 ]
 
 if os.environ.get("DJANGO_ENV") == "development":
     import debug_toolbar
 
     urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
