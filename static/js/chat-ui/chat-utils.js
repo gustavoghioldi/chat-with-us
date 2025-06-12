@@ -11,7 +11,7 @@ export class ChatManager {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
     }
 
-    async sendMessage(text, agent = "Rosaura") {
+    async sendMessage(text, agent = "rosaura") {
         if (!text.trim()) return;
 
         this.addMessage(text);
@@ -25,8 +25,7 @@ export class ChatManager {
                 },
                 body: JSON.stringify({
                     message: text,
-                    agent: agent,
-                    session_id: localStorage.getItem('session_id') || null
+                    agent: agent
                 })
             });
 
