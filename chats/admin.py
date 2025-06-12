@@ -14,10 +14,10 @@ class ChatAdmin(admin.ModelAdmin):
     fields = ("agent", "session_id", "created_at", "updated_at")
     readonly_fields = ("created_at", "updated_at", "agent", "session_id")
 
-    # def get_form(self, request, obj = ..., change = ..., **kwargs):
-    #     form = super().get_form(request, obj=obj, change=change, **kwargs)
-    #     form.content_chats = ContentChatModel.objects.filter(chat=obj)
-    #     return form
+    def get_form(self, request, obj=..., change=..., **kwargs):
+        form = super().get_form(request, obj=obj, change=change, **kwargs)
+        form.content_chats = ContentChatModel.objects.filter(chat=obj)
+        return form
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
         extra_context = extra_context or {}
