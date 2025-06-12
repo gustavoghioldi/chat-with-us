@@ -1,9 +1,14 @@
+import { ChatManager } from './chat-utils.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chatMessages');
     const textInput = document.getElementById('textInput');
     const sendButton = document.getElementById('sendButton');
     const startVoice = document.getElementById('startVoice');
     const voiceStatus = document.getElementById('voiceStatus');
+
+    // Initialize chat manager
+    const chatManager = new ChatManager(chatMessages);
 
     let recognition = null;
     let isListening = false;
@@ -46,46 +51,15 @@ document.addEventListener('DOMContentLoaded', () => {
         voiceStatus.textContent = 'El reconocimiento de voz no está soportado en este navegador.';
     }
 
-    // Función para agregar mensajes al chat
-    function addMessage(text, isSent = true) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', isSent ? 'sent' : 'received');
-        messageDiv.textContent = text;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
     // Función para enviar mensaje
     async function sendMessage() {
         const text = textInput.value.trim();
         if (text) {
-            addMessage(text);
-            textInput.value = '';
-
             try {
-                const response = await fetch('/api/v1/chat', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(
-                        { message: text,
-                          agent: "Rosaura"
-                        }
-                    )
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-
-                const data = await response.json();
-
-                addMessage(data.response, false);
+                textInput.value = '';
+                await chatManager.sendMessage(text);
             } catch (error) {
                 console.error('Error:', error);
-                addMessage('Error al enviar el mensaje: ' + error.message, false);
             }
         }
     }
