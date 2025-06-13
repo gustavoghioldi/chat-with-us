@@ -60,6 +60,11 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
      --name pgapp \
      postgres:latest
    ```
+2. **If having any problem with psycopg:**
+   ```bash
+   sudo apt-get update
+   sudo apt-get install libpq-dev
+   ```
 
 3. **Create Database**
    - Open DBeaver
