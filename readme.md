@@ -86,7 +86,10 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
    ```bash
    python manage.py runserver
    ```
-
+8. **Run Celery**
+  ```
+  celery -A main worker --loglevel=info
+  ```
 The application will be available at `http://localhost:8000`
 
 ## Development Workflow
