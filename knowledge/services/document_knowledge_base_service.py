@@ -19,7 +19,7 @@ class DocumentKnowledgeBaseService:
         sites = []
 
         for k in self.agent_model.knoledge_text_models.all():
-            if k.category == "plain_text":
+            if k.category == "plain_document":
                 documents.append(Document(content=k.text))
             if k.category == "website":
                 sites.append(k.url)

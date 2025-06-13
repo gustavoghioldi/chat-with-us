@@ -14,3 +14,6 @@ class KnowledgeModel(AppModel):
     text = models.TextField(blank=True)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=50, choices=CHOICES)
+
+    def __str__(self):
+        return self.name
