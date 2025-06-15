@@ -4,9 +4,6 @@ from rest_framework.views import APIView
 from agents.services.agent_service import AgentService
 from api.serializers.chat_serializer import ChatSerializer
 from chats.services import ChatService
-from chats.signals.content_chat_emit import new_chat_text
-
-# Create your views here.
 
 
 class ChatView(APIView):
