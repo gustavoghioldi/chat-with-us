@@ -6,6 +6,12 @@ from main.models import AppModel, models
 class AgentModel(AppModel):
     name = models.CharField(max_length=255, unique=True)
     instructions = models.TextField()
+    description = models.TextField(
+        blank=True,
+        null=True,
+        default="Agente creado para responder preguntas y realizar tareas específicas.",
+        help_text="Descripción del agente, opcional",
+    )
     knoledge_text_models = models.ManyToManyField(KnowledgeModel, blank=True)
     agent_model_id = models.CharField(
         max_length=50,

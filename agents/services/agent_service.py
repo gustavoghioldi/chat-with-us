@@ -34,6 +34,11 @@ class AgentService:
                 {agent_model.instructions}
                 """
             ),
+            description=dedent(
+                f"""
+                {agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
+                """
+            ),
             knowledge=knowledge_service.get_knowledge_base(),
             storage=storage_service.get_storage(),
             add_history_to_messages=True,
