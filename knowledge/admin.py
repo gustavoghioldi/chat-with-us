@@ -11,5 +11,4 @@ class KnowledgeAdmin(admin.ModelAdmin):
     search_fields = ("name", "url", "description")
     list_filter = ("category",)
     ordering = ("-created_at",)
-    fields = ("name", "category", "url", "text", "description")
     readonly_fields = ("created_at", "updated_at")

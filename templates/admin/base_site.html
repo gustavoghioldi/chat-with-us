@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if title %}{{ title }} | {% endif %}🏆 Chat With Us Admin
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin_elegant.css' %}">
+{% endblock %}
+
+{% block branding %}
+    <h1 id="site-name">
+        <a href="{% url 'admin:index' %}">
+            🏆 Chat With Us
+        </a>
+    </h1>
+{% endblock %}
+
+{% block nav-global %}
+    <div style="background: linear-gradient(135deg, #fff, #FFB000); padding: 8px 20px; text-align: center; font-weight: 600; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+        ✨ Panel de Administración ✨
+    </div>
+{% endblock %}
