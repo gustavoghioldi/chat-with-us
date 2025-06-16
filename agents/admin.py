@@ -24,6 +24,8 @@ class AgentAdmin(admin.ModelAdmin):
         "name",
         "get_knowledge_summary",
         "get_knowledge_categories",
+        "get_api_tools_summary",
+        "get_api_tools_methods",
         "agent_model_id",
         "tenant",
         "created_at",
@@ -35,16 +37,23 @@ class AgentAdmin(admin.ModelAdmin):
         "updated_at",
         "tenant",
         "knoledge_text_models__category",
+        "api_call_models__method",
     )
     ordering = ("-created_at",)
-    filter_horizontal = ("knoledge_text_models",)
+    filter_horizontal = ("knoledge_text_models", "api_call_models")
     # inlines = [KnowledgeInline]
 
     fieldsets = (
         (
             "🤖 Información del Agente",
             {
-                "fields": ("name", "instructions", "description","agent_model_id", "tenant"),
+                "fields": (
+                    "name",
+                    "instructions",
+                    "description",
+                    "agent_model_id",
+                    "tenant",
+                ),
                 "description": "Configuración básica del agente de IA",
             },
         ),
@@ -53,6 +62,14 @@ class AgentAdmin(admin.ModelAdmin):
             {
                 "fields": ("knoledge_text_models",),
                 "description": "Selecciona los modelos de conocimiento que utilizará este agente para responder preguntas",
+                "classes": ("wide",),
+            },
+        ),
+        (
+            "🛠️ Api Tool",
+            {
+                "fields": ("api_call_models",),
+                "description": "Selecciona los modelos de Api Tool que utilizará este agente para responder preguntas",
                 "classes": ("wide",),
             },
         ),
@@ -107,13 +124,62 @@ class AgentAdmin(admin.ModelAdmin):
 
     get_knowledge_categories.short_description = "Categorías"
 
+    def get_api_tools_summary(self, obj):
+        """Muestra un resumen elegante de los API tools"""
+        count = obj.api_call_models.count()
+        if count == 0:
+            return format_html(
+                '<span style="color: #dc3545; font-weight: 500;">❌ Sin tools</span>'
+            )
+        elif count <= 3:
+            return format_html(
+                '<span style="color: #28a745; font-weight: 500;">✅ {} tool{}</span>',
+                count,
+                "s" if count != 1 else "",
+            )
+        else:
+            return format_html(
+                '<span style="color: #007bff; font-weight: 500;">🚀 {} tools</span>',
+                count,
+            )
+
+    get_api_tools_summary.short_description = "API Tools"
+    get_api_tools_summary.admin_order_field = "api_tools_count"
+
+    def get_api_tools_methods(self, obj):
+        """Muestra los métodos HTTP como badges elegantes"""
+        methods = obj.api_call_models.values_list("method", flat=True).distinct()
+        if not methods:
+            return format_html('<span style="color: #6c757d;">—</span>')
+
+        badges = []
+        for method in methods:
+            if method == "GET":
+                badge = '<span style="background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📥 GET</span>'
+            elif method == "POST":
+                badge = '<span style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📤 POST</span>'
+            elif method == "PUT":
+                badge = '<span style="background: linear-gradient(135deg, #ffc107, #e0a800); color: black; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🔄 PUT</span>'
+            elif method == "DELETE":
+                badge = '<span style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🗑️ DEL</span>'
+            else:
+                badge = f'<span style="background: linear-gradient(135deg, #6c757d, #495057); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🔧 {method}</span>'
+            badges.append(badge)
+
+        return mark_safe("".join(badges))
+
+    get_api_tools_methods.short_description = "Métodos HTTP"
+
     def get_queryset(self, request):
         """Optimiza las consultas para mejor rendimiento"""
         qs = super().get_queryset(request)
         return (
-            qs.prefetch_related("knoledge_text_models")
+            qs.prefetch_related("knoledge_text_models", "api_call_models")
             .select_related("tenant")
-            .annotate(knowledge_count=models.Count("knoledge_text_models"))
+            .annotate(
+                knowledge_count=models.Count("knoledge_text_models"),
+                api_tools_count=models.Count("api_call_models"),
+            )
         )
 
     def changelist_view(self, request, extra_context=None):
@@ -138,7 +204,18 @@ class AgentAdmin(admin.ModelAdmin):
                             category="plain_document"
                         ).count(),
                     }
+                    api_tools_stats = {
+                        "total": obj.api_call_models.count(),
+                        "get_methods": obj.api_call_models.filter(method="GET").count(),
+                        "post_methods": obj.api_call_models.filter(
+                            method="POST"
+                        ).count(),
+                        "other_methods": obj.api_call_models.exclude(
+                            method__in=["GET", "POST"]
+                        ).count(),
+                    }
                     extra_context["knowledge_stats"] = knowledge_stats
+                    extra_context["api_tools_stats"] = api_tools_stats
             except Exception:
                 pass
         return super().change_view(request, object_id, form_url, extra_context)

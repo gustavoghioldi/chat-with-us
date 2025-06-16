@@ -1,5 +1,6 @@
 from knowledge.models import KnowledgeModel
 from main.models import AppModel, models
+from tools.models.api_call_model import ApiCallModel
 
 
 # Create your models here.
@@ -13,6 +14,8 @@ class AgentModel(AppModel):
         help_text="Descripción del agente, opcional",
     )
     knoledge_text_models = models.ManyToManyField(KnowledgeModel, blank=True)
+    api_call_models = models.ManyToManyField(ApiCallModel, blank=True)
+
     agent_model_id = models.CharField(
         max_length=50,
         blank=True,

@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from tools.models.api_call_model import ApiCallModel
+
 
 @admin.register(ApiCallModel)
 class ApiCallAdmin(admin.ModelAdmin):
@@ -48,7 +50,7 @@ class ApiCallAdmin(admin.ModelAdmin):
         (
             "⚙️ Instrucciones",
             {
-                "fields": ("intructions", ),
+                "fields": ("instructions",),
                 "description": "Instrucciones para hacer la llamada a la API",
                 "classes": ("collapse",),
             },
@@ -58,5 +60,5 @@ class ApiCallAdmin(admin.ModelAdmin):
             {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
         ),
     )
-    
+
     readonly_fields = ("created_at", "updated_at")

@@ -1,4 +1,6 @@
 from main.models import AppModel, models
+
+
 class ApiCallModel(AppModel):
     """Modelo para registrar llamadas a APIs externas"""
 
@@ -43,7 +45,7 @@ class ApiCallModel(AppModel):
         default=30,
         help_text="Tiempo de espera para la llamada a la API en segundos, por defecto 30",
     )
-    intructions = models.TextField(
+    instructions = models.TextField(
         blank=True,
         null=True,
         help_text="Instrucciones opcionales para la llamada a la API",

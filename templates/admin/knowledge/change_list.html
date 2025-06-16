@@ -3,11 +3,9 @@
 
 {% block content_title %}
     {{ content_title }}
-    {% if show_upload_button and upload_url %}
-        <a href="{{ upload_url }}" class="addlink" style="margin-left: 20px; background-color: #28a745; border-color: #28a745;">
-            📤 Subir Archivo CSV/JSON
-        </a>
-    {% endif %}
+    <a href="{{ upload_url }}" class="addlink" style="margin-left: 20px; background-color: #28a745; border-color: #28a745;">
+        📤 Subir Archivo CSV/JSON
+    </a>
 {% endblock %}
 
 {% block extrahead %}

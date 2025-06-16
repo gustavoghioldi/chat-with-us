@@ -28,21 +28,21 @@ class DocumentKnowledgeBaseService:
 
         knowledge_base_documents = DocumentKnowledgeBase(
             documents=documents,
-            vector_db=PgVector(
-                table_name="ia_documents",
-                db_url=IA_DB,
-                embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-            ),
+            # vector_db=PgVector(
+            #     table_name="ia_documents",
+            #     db_url=IA_DB,
+            #     embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+            # ),
         )
 
         knowledge_base_web = WebsiteKnowledgeBase(
             urls=sites,
             max_depth=1,
             max_links=1,
-            vector_db=PgVector(
-                table_name="ia_website_documents",
-                db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
-            ),
+            # vector_db=PgVector(
+            #     table_name="ia_website_documents",
+            #     db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+            # ),
             embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
         )
 
@@ -52,7 +52,7 @@ class DocumentKnowledgeBaseService:
                 knowledge_base_documents,
             ],
             vector_db=PgVector(
-                table_name="ia_combined_documents",
+                table_name=f"{self.agent_model.tenant.name}_{self.agent_model.name}_ia_combined_documents",
                 db_url=IA_DB,
                 embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
             ),
