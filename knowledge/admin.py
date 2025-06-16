@@ -69,55 +69,39 @@ class KnowledgeAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "formatted_text_preview")
 
-    def get_fieldsets(self, request, obj=None):
-        """Mostrar diferentes fieldsets según la categoría."""
-        # Si es un objeto existente, usar su categoría
-        if obj and obj.category == "website":
-            return (
-                (
-                    "📝 Información Básica",
-                    {"fields": ("name", "description", "category", "tenant")},
+    fieldsets = (
+        (
+            "📝 Información Básica",
+            {"fields": ("name", "description", "category", "tenant")},
+        ),
+        (
+            "🌐 Contenido Web",
+            {
+                "fields": ("url",),
+                "classes": ("collapse",),
+                "description": "Para contenido web o scraping",
+            },
+        ),
+        (
+            "📄 Contenido de Texto",
+            {
+                "fields": ("text", "formatted_text_preview"),
+                "classes": ("collapse",),
+                "description": "Contenido transformado a Markdown",
+            },
+        ),
+        (
+            "🕒 Metadatos",
+            {
+                "fields": (
+                    "created_at",
+                    "updated_at",
+                    "recreate",
                 ),
-                (
-                    "🌐 Contenido Web",
-                    {
-                        "fields": ("url",),
-                        "description": "URL del sitio web para scraping",
-                    },
-                ),
-                (
-                    "🕒 Metadatos",
-                    {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
-                ),
-            )
-        else:
-            # Para documentos plain_document o nuevos objetos
-            return (
-                (
-                    "📝 Información Básica",
-                    {"fields": ("name", "description", "category", "tenant")},
-                ),
-                (
-                    "🌐 Contenido Web",
-                    {
-                        "fields": ("url",),
-                        "classes": ("collapse",),
-                        "description": "Para contenido web o scraping (solo si categoría es website)",
-                    },
-                ),
-                (
-                    "📄 Contenido de Texto",
-                    {
-                        "fields": ("text", "formatted_text_preview"),
-                        "classes": ("collapse",),
-                        "description": "Contenido transformado a Markdown (solo para documentos)",
-                    },
-                ),
-                (
-                    "🕒 Metadatos",
-                    {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
-                ),
-            )
+                "classes": ("collapse",),
+            },
+        ),
+    )
 
     def get_urls(self):
         """Agregar URLs personalizadas para la carga de archivos."""
@@ -132,10 +116,7 @@ class KnowledgeAdmin(admin.ModelAdmin):
         return custom_urls + urls
 
     def file_upload_actions(self, obj):
-        """Mostrar botones de acción para subir archivos solo para documentos."""
-        if obj and obj.category == "website":
-            return format_html('<span style="color: #666;">🌐 Sitio Web</span>')
-
+        """Mostrar botones de acción para subir archivos."""
         return format_html(
             '<a class="button" href="{}">📤 Subir Archivo</a>',
             reverse("admin:knowledge_upload_file"),
@@ -145,13 +126,8 @@ class KnowledgeAdmin(admin.ModelAdmin):
     file_upload_actions.allow_tags = True
 
     def formatted_text_preview(self, obj):
-        """Vista previa del texto formateado solo para documentos."""
-        if obj and obj.category == "website":
-            return format_html(
-                '<em style="color: #666;">No aplicable para sitios web</em>'
-            )
-
-        if obj and obj.text:
+        """Vista previa del texto formateado."""
+        if obj.text:
             preview = obj.text[:500] + "..." if len(obj.text) > 500 else obj.text
             return format_html(
                 '<pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">{}</pre>',
@@ -298,15 +274,7 @@ class KnowledgeAdmin(admin.ModelAdmin):
         )
 
     def changelist_view(self, request, extra_context=None):
-        """Personalizar la vista de lista para agregar botón de subida solo para documentos."""
+        """Personalizar la vista de lista para agregar botón de subida."""
         extra_context = extra_context or {}
-
-        # Solo mostrar el botón de subida si no estamos filtrando por websites
-        category_filter = request.GET.get("category")
-        if category_filter != "website":
-            extra_context["upload_url"] = reverse("admin:knowledge_upload_file")
-            extra_context["show_upload_button"] = True
-        else:
-            extra_context["show_upload_button"] = False
-
+        extra_context["upload_url"] = reverse("admin:knowledge_upload_file")
         return super().changelist_view(request, extra_context)

@@ -15,6 +15,8 @@ class DocumentKnowledgeBaseService:
         self.agent_model = AgentModel.objects.get(name=agent)
 
     def get_knowledge_base(self):
+        # Verificar si algún modelo de conocimiento necesita recreación
+        recreate = self.agent_model.knoledge_text_models.filter(recreate=True).exists()
         documents = []
         sites = []
 
@@ -56,5 +58,9 @@ class DocumentKnowledgeBaseService:
             ),
         )
 
-        combined_knowledge.load(recreate=True)  # TODO: dar TTL o forzar
+        combined_knowledge.load(recreate=recreate)  # TODO: dar TTL o forzar
+
+        # Marcar todos los modelos de conocimiento utilizados como procesados (recreate=False)
+        self.agent_model.knoledge_text_models.update(recreate=False)
+
         return combined_knowledge

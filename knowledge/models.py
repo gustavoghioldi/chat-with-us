@@ -23,6 +23,19 @@ class KnowledgeModel(AppModel):
         blank=True,
         default=None,
     )
+    recreate = models.BooleanField(
+        default=True,
+        help_text="Indica si el modelo de conocimiento necesita ser recreado",
+    )
+
+    def save(self, *args, **kwargs):
+        """
+        Sobrescribir el método save para establecer recreate=True en cada edición.
+        """
+        # Si el objeto ya existe (no es una creación), establecer recreate=True
+        if self.pk is not None:
+            self.recreate = True
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
