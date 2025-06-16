@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "knowledge",
     "chats",
     "tenants",
+    "tools",
 ]
 
 MIDDLEWARE = [
