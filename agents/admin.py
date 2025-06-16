@@ -44,7 +44,7 @@ class AgentAdmin(admin.ModelAdmin):
         (
             "🤖 Información del Agente",
             {
-                "fields": ("name", "instructions", "agent_model_id", "tenant"),
+                "fields": ("name", "instructions", "description","agent_model_id", "tenant"),
                 "description": "Configuración básica del agente de IA",
             },
         ),
