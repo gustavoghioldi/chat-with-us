@@ -2,29 +2,109 @@
 
 {% block extrahead %}
     {{ block.super }}
+    <style>
+        .category-help {
+            background-color: #f0f8ff;
+            padding: 12px;
+            border-left: 4px solid #007cba;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .field-formatted_text_preview pre {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .website-only-notice {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #004085;
+        }
+    </style>
     <script>
-        document.addEventListener("DOMContentLoaded",  () => {
+        document.addEventListener("DOMContentLoaded", () => {
             const categoryField = document.querySelector("#id_category");
             const textField = document.querySelector(".field-text");
             const urlField = document.querySelector(".field-url");
+            const textPreviewField = document.querySelector(".field-formatted_text_preview");
 
-            textField.setAttribute("hidden", "true");
-            urlField.setAttribute("hidden", "true");
+            // Inicialmente ocultar ambos campos
+            if (textField) textField.style.display = "none";
+            if (urlField) urlField.style.display = "none";
+            if (textPreviewField) textPreviewField.style.display = "none";
 
-            const toggleReadOnly= () => {
-                if (categoryField.value === "website") {
-                    textField.setAttribute("hidden", "true");
-                    urlField.removeAttribute("hidden");
-                }
-
-                if (categoryField.value === "plain_document") {
-                    textField.removeAttribute("hidden");
-                    urlField.setAttribute("hidden", "true");
+            // Agregar texto de ayuda para la categoría
+            function addCategoryHelperText() {
+                if (categoryField && !categoryField.parentNode.querySelector('.category-help')) {
+                    const helpDiv = document.createElement('div');
+                    helpDiv.className = 'category-help';
+                    helpDiv.innerHTML = `
+                        <strong>💡 Información sobre categorías:</strong><br>
+                        📄 <strong>plain_document:</strong> Para documentos de texto, archivos CSV/JSON que se convertirán a Markdown<br>
+                        🌐 <strong>website:</strong> Para sitios web que requieren scraping (solo necesita URL, no subir archivos)
+                    `;
+                    categoryField.parentNode.insertBefore(helpDiv, categoryField.nextSibling);
                 }
             }
 
-            categoryField.addEventListener("change", toggleReadOnly);
-            toggleReadOnly();
+            const toggleFieldsBasedOnCategory = () => {
+                if (!categoryField) return;
+
+                const category = categoryField.value;
+
+                if (category === "website") {
+                    // Para websites: mostrar solo URL
+                    if (textField) textField.style.display = "none";
+                    if (textPreviewField) textPreviewField.style.display = "none";
+                    if (urlField) urlField.style.display = "block";
+
+                    // Agregar aviso para websites
+                    if (!document.querySelector('.website-only-notice')) {
+                        const notice = document.createElement('div');
+                        notice.className = 'website-only-notice';
+                        notice.innerHTML = '🌐 <strong>Sitio Web:</strong> Para este tipo de contenido solo necesitas proporcionar la URL. No se requiere subir archivos ni contenido de texto.';
+
+                        const firstFieldset = document.querySelector('fieldset');
+                        if (firstFieldset && firstFieldset.parentNode) {
+                            firstFieldset.parentNode.insertBefore(notice, firstFieldset.nextSibling);
+                        }
+                    }
+                } else if (category === "plain_document") {
+                    // Para documentos: mostrar campos de texto
+                    if (textField) textField.style.display = "block";
+                    if (textPreviewField) textPreviewField.style.display = "block";
+                    if (urlField) urlField.style.display = "none";
+
+                    // Remover aviso de website si existe
+                    const notice = document.querySelector('.website-only-notice');
+                    if (notice) notice.remove();
+                } else {
+                    // Por defecto mostrar todo
+                    if (textField) textField.style.display = "block";
+                    if (textPreviewField) textPreviewField.style.display = "block";
+                    if (urlField) urlField.style.display = "block";
+
+                    // Remover aviso de website si existe
+                    const notice = document.querySelector('.website-only-notice');
+                    if (notice) notice.remove();
+                }
+            };
+
+            if (categoryField) {
+                addCategoryHelperText();
+                categoryField.addEventListener("change", toggleFieldsBasedOnCategory);
+                toggleFieldsBasedOnCategory(); // Ejecutar al cargar
+            }
         });
     </script>
 {% endblock %}

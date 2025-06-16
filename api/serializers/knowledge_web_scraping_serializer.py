@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-class KnowledegeWebScrapingSerializer(serializers.Serializer):
+
+class KnowledgeWebScrapingSerializer(serializers.Serializer):
     """Serializer para la vista de web scraping de conocimiento."""
 
     name = serializers.CharField(max_length=255, required=True)

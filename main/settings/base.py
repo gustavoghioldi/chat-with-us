@@ -122,3 +122,6 @@ REST_FRAMEWORK = {
         "rest_framework.renderers.BrowsableAPIRenderer",
     ],
 }
+
+KNOWKEDGE_TEXT_MAX_CHARS = 14400000
+KNOWKEDGE_CSV_MAX_ROWS = 10000

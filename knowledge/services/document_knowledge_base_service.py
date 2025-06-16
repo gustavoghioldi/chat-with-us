@@ -56,5 +56,5 @@ class DocumentKnowledgeBaseService:
             ),
         )
 
-        combined_knowledge.load(recreate=False)  # TODO: dar TTL o forzar
+        combined_knowledge.load(recreate=True)  # TODO: dar TTL o forzar
         return combined_knowledge
