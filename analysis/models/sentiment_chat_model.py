@@ -2,7 +2,6 @@ from chats.models import ContentChatModel
 from main.models import AppModel, models
 
 
-# Create your models here.
 class SentimentChatModel(AppModel):
     SENTIMENT_OPTIONS = [
         ("POSITIVO", "Positivo"),

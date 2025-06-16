@@ -1,0 +1,220 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        /* Estilos específicos para Sentiment Agent Model */
+        .sentiment-stats {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.2);
+        }
+
+        .sentiment-stats h3 {
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            color: #1a1a1a;
+            text-align: center;
+            background: linear-gradient(135deg, #FFD700, #FFB000);
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .token-category {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .token-category.positive {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+
+        .token-category.negative {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+
+        .token-category.neutral {
+            border-color: #6c757d;
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+        }
+
+        .token-category h4 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .token-count {
+            background: #1a1a1a;
+            color: #FFD700;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: auto;
+        }
+
+        .token-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .token-tag {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .token-tag.positive {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .token-tag.negative {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+
+        .token-tag.neutral {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        .help-text {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .help-text strong {
+            color: #1a1a1a;
+        }
+
+        /* Mejorar la apariencia de los textareas */
+        .form-row textarea {
+            min-height: 80px;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        @media (max-width: 768px) {
+            .tokens-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block field_sets %}
+    {{ block.super }}
+
+    {% if tokens_stats %}
+        <div class="sentiment-stats">
+            <h3>📊 Estadísticas de Tokens Configurados</h3>
+
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="display: inline-flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                    <div style="background: #28a745; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                        😊 {{ tokens_stats.positive_count }} Positivos
+                    </div>
+                    <div style="background: #dc3545; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                        😞 {{ tokens_stats.negative_count }} Negativos
+                    </div>
+                    <div style="background: #6c757d; color: white; padding: 8px 16px; border-radius: 20px; font-weight: 600;">
+                        😐 {{ tokens_stats.neutral_count }} Neutrales
+                    </div>
+                    <div style="background: #FFD700; color: #1a1a1a; padding: 8px 16px; border-radius: 20px; font-weight: 700;">
+                        🎯 {{ tokens_stats.total_count }} Total
+                    </div>
+                </div>
+            </div>
+
+            <div class="tokens-grid">
+                {% if tokens_stats.positive_examples %}
+                <div class="token-category positive">
+                    <h4>
+                        😊 Tokens Positivos
+                        <span class="token-count">{{ tokens_stats.positive_count }}</span>
+                    </h4>
+                    <div class="token-examples">
+                        {% for token in tokens_stats.positive_examples %}
+                            <span class="token-tag positive">{{ token }}</span>
+                        {% endfor %}
+                        {% if tokens_stats.positive_count > 5 %}
+                            <span class="token-tag positive">+{{ tokens_stats.positive_count|add:"-5" }} más...</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tokens_stats.negative_examples %}
+                <div class="token-category negative">
+                    <h4>
+                        😞 Tokens Negativos
+                        <span class="token-count">{{ tokens_stats.negative_count }}</span>
+                    </h4>
+                    <div class="token-examples">
+                        {% for token in tokens_stats.negative_examples %}
+                            <span class="token-tag negative">{{ token }}</span>
+                        {% endfor %}
+                        {% if tokens_stats.negative_count > 5 %}
+                            <span class="token-tag negative">+{{ tokens_stats.negative_count|add:"-5" }} más...</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tokens_stats.neutral_examples %}
+                <div class="token-category neutral">
+                    <h4>
+                        😐 Tokens Neutrales
+                        <span class="token-count">{{ tokens_stats.neutral_count }}</span>
+                    </h4>
+                    <div class="token-examples">
+                        {% for token in tokens_stats.neutral_examples %}
+                            <span class="token-tag neutral">{{ token }}</span>
+                        {% endfor %}
+                        {% if tokens_stats.neutral_count > 5 %}
+                            <span class="token-tag neutral">+{{ tokens_stats.neutral_count|add:"-5" }} más...</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="help-text">
+                <strong>💡 Tip:</strong> Los tokens deben estar separados por comas. Ejemplos:
+                <br><strong>Positivos:</strong> excelente, genial, fantástico, perfecto, increíble
+                <br><strong>Negativos:</strong> terrible, malo, horrible, pésimo, desastre
+                <br><strong>Neutrales:</strong> ok, bien, normal, regular, aceptable
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

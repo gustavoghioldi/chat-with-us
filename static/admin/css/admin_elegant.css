@@ -126,7 +126,6 @@ h1 {
 
 /* Botones */
 .button, input[type="submit"], .submit-row input, .addlink, .changelink {
-
 }
 
 .button:hover, input[type="submit"]:hover, .submit-row input:hover,
@@ -219,12 +218,12 @@ h1 {
 }
 
 .form-row input, .form-row select, .form-row textarea {
-    /* border: 2px solid var(--primary-yellow);
+    border: 2px solid var(--primary-yellow);
     border-radius: 6px;
     padding: 10px 12px;
     font-size: 14px;
     transition: all 0.3s ease;
-    background: var(--white); */
+    background: var(--white);
 }
 
 .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
