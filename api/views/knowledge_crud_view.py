@@ -4,6 +4,7 @@ from rest_framework import filters, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from api.permissions_classes.is_tenant_authenticated import IsTenantAuthenticated
 from api.serializers.knowledge_csv_serializer import KnowledgeCSVSerializer
 from api.serializers.knowledge_json_serializer import KnowledgeJsonSerializer
 from api.serializers.knowledge_text_serializer import KnowledgeTextSerializer
@@ -26,6 +27,7 @@ class KnowledgeViewSet(viewsets.ModelViewSet):
     """
 
     queryset = KnowledgeModel.objects.all()
+    permission_classes = [IsTenantAuthenticated]
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -63,8 +65,18 @@ class KnowledgeViewSet(viewsets.ModelViewSet):
         return KnowledgeTextSerializer
 
     def get_queryset(self):
-        """Optimizar consultas con select_related."""
-        return KnowledgeModel.objects.select_related("tenant")
+        """
+        Optimizar consultas y filtrar por tenant automáticamente.
+
+        Solo retorna modelos de conocimiento que pertenecen al tenant autenticado.
+        """
+        queryset = KnowledgeModel.objects.select_related("tenant")
+
+        # Filtrar por tenant si está disponible en la request
+        if hasattr(self.request, "tenant") and self.request.tenant:
+            queryset = queryset.filter(tenant=self.request.tenant)
+
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """Crear un nuevo modelo de conocimiento."""
@@ -79,8 +91,8 @@ class KnowledgeViewSet(viewsets.ModelViewSet):
                 "name": validated_data["name"],
                 "category": self.CATEGORY_MAPPING.get(knowledge_type, "plain_document"),
                 "tenant": (
-                    request.user.profile.tenant
-                    if hasattr(request.user, "profile")
+                    request.tenant
+                    if hasattr(request, "tenant") and request.tenant
                     else None
                 ),
             }
