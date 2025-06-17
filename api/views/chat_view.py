@@ -14,10 +14,10 @@ class ChatView(APIView):
         serializer = ChatSerializer(data=request.data)
         if serializer.is_valid():
             agent = serializer.validated_data["agent"]
-
+            agent_service = AgentService(agent)
             # Verificar que el agente pertenezca al tenant autenticado
             if hasattr(request, "tenant") and request.tenant:
-                if agent.tenant != request.tenant:
+                if agent_service.get_agent_model().tenant != request.tenant:
                     return Response(
                         {"error": "El agente no pertenece al tenant autenticado"},
                         status=403,
@@ -25,7 +25,7 @@ class ChatView(APIView):
 
             message = serializer.validated_data["message"]
             session_id = serializer.validated_data.get("session_id")
-            agent_service = AgentService(agent)
+
             text, session_id = agent_service.send_message(message, session_id)
             response = {
                 "agent": agent,

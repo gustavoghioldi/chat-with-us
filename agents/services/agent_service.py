@@ -21,8 +21,8 @@ class AgentService:
         from agents.services.agent_cache_service import AgentCacheService
 
         # Obtener el agente del caché
-        agent_model = AgentCacheService.get_agent(agent_name)
-        if agent_model is None:
+        self.__agent_model = AgentCacheService.get_agent(agent_name)
+        if self.__agent_model is None:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
         toolkit = ToolkitService(agent_name)
         knowledge_service = DocumentKnowledgeBaseService(agent_name)
@@ -32,12 +32,12 @@ class AgentService:
             model=Ollama(id=IA_MODEL),
             instructions=dedent(
                 f"""
-                {agent_model.instructions}
+                {self.__agent_model.instructions}
                 """
             ),
             description=dedent(
                 f"""
-                {agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
+                {self.__agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
                 """
             ),
             tools=toolkit.get_toolkit(),
@@ -61,3 +61,7 @@ class AgentService:
 
     def __clean_response(self, response: str) -> str:
         return re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+
+    def get_agent_model(self) -> Agent:
+        """Get the agent instance."""
+        return self.__agent_model
