@@ -8,7 +8,7 @@ from agno.knowledge.website import WebsiteKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
 from agents.models import AgentModel
-from main.settings import IA_DB, IA_MODEL
+from main.settings import IA_DB, IA_MODEL, IA_MODEL_EMBEDDING
 
 
 class DocumentKnowledgeBaseService:
@@ -30,19 +30,19 @@ class DocumentKnowledgeBaseService:
 
         knowledge_base_documents = DocumentKnowledgeBase(
             documents=documents,
-            # vector_db=PgVector(
-            #     table_name="ia_documents",
-            #     db_url=IA_DB,
-            #     embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-            # ),
+            vector_db=PgVector(
+                table_name=f"ia_documents_{self.agent_model.name}",
+                db_url=IA_DB,
+                embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+            ),
         )
 
         knowledge_base_web = WebsiteKnowledgeBase(
             urls=sites,
-            # vector_db=PgVector(
-            #     table_name="ia_website_documents",
-            #     db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
-            # ),
+            vector_db=PgVector(
+                table_name=f"ia_website_documents_{self.agent_model.name}",
+                db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+            ),
             embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
         )
 
@@ -54,7 +54,7 @@ class DocumentKnowledgeBaseService:
             vector_db=PgVector(
                 table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
-                embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+                embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
             ),
         )
 

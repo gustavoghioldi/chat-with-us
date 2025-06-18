@@ -11,7 +11,7 @@ from knowledge.services.document_knowledge_base_service import (
     DocumentKnowledgeBaseService,
 )
 from main.settings import IA_MODEL
-from tools.services.toolkit_service import ToolkitService
+from tools.kit.obtener_datos_de_factura import *
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class AgentService:
             )
         except AgentModel.DoesNotExist:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
-        toolkit = ToolkitService(agent_name)
+        # toolkit = [obtener_datos_de_factura]
         knowledge_service = DocumentKnowledgeBaseService(agent_name)
         knowledge = knowledge_service.get_knowledge_base()
         storage_service = AgentSessionService()
@@ -43,8 +43,8 @@ class AgentService:
                 {self.__agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
                 """
             ),
-            tools=toolkit.get_toolkit(),
-            show_tool_calls=True,
+            # tools=toolkit,
+            # show_tool_calls=True,
             knowledge=knowledge,
             search_knowledge=True if knowledge else False,
             storage=storage_service.get_storage(),

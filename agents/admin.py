@@ -25,7 +25,6 @@ class AgentAdmin(admin.ModelAdmin):
         "get_knowledge_summary",
         "get_knowledge_categories",
         "get_api_tools_summary",
-        "get_api_tools_methods",
         "agent_model_id",
         "tenant",
         "created_at",
@@ -37,7 +36,6 @@ class AgentAdmin(admin.ModelAdmin):
         "updated_at",
         "tenant",
         "knoledge_text_models__category",
-        "api_call_models__method",
     )
     ordering = ("-created_at",)
     filter_horizontal = ("knoledge_text_models", "api_call_models")
@@ -145,30 +143,6 @@ class AgentAdmin(admin.ModelAdmin):
 
     get_api_tools_summary.short_description = "API Tools"
     get_api_tools_summary.admin_order_field = "api_tools_count"
-
-    def get_api_tools_methods(self, obj):
-        """Muestra los métodos HTTP como badges elegantes"""
-        methods = obj.api_call_models.values_list("method", flat=True).distinct()
-        if not methods:
-            return format_html('<span style="color: #6c757d;">—</span>')
-
-        badges = []
-        for method in methods:
-            if method == "GET":
-                badge = '<span style="background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📥 GET</span>'
-            elif method == "POST":
-                badge = '<span style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📤 POST</span>'
-            elif method == "PUT":
-                badge = '<span style="background: linear-gradient(135deg, #ffc107, #e0a800); color: black; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🔄 PUT</span>'
-            elif method == "DELETE":
-                badge = '<span style="background: linear-gradient(135deg, #dc3545, #c82333); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🗑️ DEL</span>'
-            else:
-                badge = f'<span style="background: linear-gradient(135deg, #6c757d, #495057); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🔧 {method}</span>'
-            badges.append(badge)
-
-        return mark_safe("".join(badges))
-
-    get_api_tools_methods.short_description = "Métodos HTTP"
 
     def get_queryset(self, request):
         """Optimiza las consultas para mejor rendimiento"""

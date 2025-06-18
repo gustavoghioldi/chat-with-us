@@ -7,7 +7,9 @@ agent = Agent(
     markdown=True,
 )
 
-agent.print_response(
-    "que dia vence la factura? ",
-    images=[Image(filepath="/Users/gustavo.ghioldi/barba/chat-with-us/doc/image.png")],
+agent.run(
+    "analisa esta factura? quiero un detalle de los productos, precios y totales.",
+    images=[
+        Image(url="https://templates.invoicehome.com/modelo-factura-es-puro-750px.png")
+    ],
 )
