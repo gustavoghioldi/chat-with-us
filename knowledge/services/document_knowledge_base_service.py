@@ -1,19 +1,16 @@
-from datetime import datetime
-
-from agno.document.base import Document
 from agno.embedder.ollama import OllamaEmbedder
 from agno.knowledge.combined import CombinedKnowledgeBase
-from agno.knowledge.csv import CSVKnowledgeBase
-from agno.knowledge.document import DocumentKnowledgeBase
-from agno.knowledge.docx import DocxKnowledgeBase
-from agno.knowledge.json import JSONKnowledgeBase
-from agno.knowledge.markdown import MarkdownKnowledgeBase
-from agno.knowledge.pdf import PDFKnowledgeBase
-from agno.knowledge.website import WebsiteKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
 from agents.models import AgentModel
-from main.settings import IA_DB, IA_MODEL, IA_MODEL_EMBEDDING
+from knowledge.services.csv_document_service import CSVDocumentService
+from knowledge.services.docx_document_service import DocxDocumentService
+from knowledge.services.json_document_service import JSONDocumentService
+from knowledge.services.markdown_document_service import MarkdownDocumentService
+from knowledge.services.pdf_document_service import PDFDocumentService
+from knowledge.services.plain_document_service import PlainDocumentService
+from knowledge.services.website_service import WebsiteService
+from main.settings import IA_DB, IA_MODEL_EMBEDDING
 
 
 class DocumentKnowledgeBaseService:
@@ -22,132 +19,96 @@ class DocumentKnowledgeBaseService:
         self.agent_model = AgentModel.objects.get(name=agent)
 
     def get_knowledge_base(self):
+        """
+        Obtiene una base de conocimiento combinada de todas las fuentes disponibles.
+
+        Returns:
+            CombinedKnowledgeBase: Base de conocimiento combinada
+        """
         # Verificar si algún modelo de conocimiento necesita recreación
         recreate = self.agent_model.knoledge_text_models.filter(recreate=True).exists()
-        documents = []
-        sites = []
-        files_csv = []
-        files_json = []
-        files_pdf = []
-        files_docx = []
-        files_markdown = []
 
-        for k in self.agent_model.knoledge_text_models.all():
-            if k.category == "plain_document":
-                documents.append(Document(content=k.text))
-            if k.category == "website":
-                sites.append(k.url)
-            if k.category == "document":
-                file_ext = k.path.split(".")[-1].lower()
+        # Clasificar los documentos por tipo
+        plain_texts = []
+        website_urls = []
+        csv_files = []
+        json_files = []
+        pdf_files = []
+        docx_files = []
+        markdown_files = []
+
+        # Categorizar los modelos de conocimiento
+        for knowledge in self.agent_model.knoledge_text_models.all():
+            if knowledge.category == "plain_document":
+                plain_texts.append(knowledge.text)
+            elif knowledge.category == "website":
+                website_urls.append(knowledge.url)
+            elif knowledge.category == "document":
+                file_ext = (
+                    knowledge.path.split(".")[-1].lower() if knowledge.path else ""
+                )
                 if file_ext == "csv":
-                    files_csv.append(k.path)
+                    csv_files.append(knowledge.path)
                 elif file_ext == "json":
-                    files_json.append(k.path)
+                    json_files.append(knowledge.path)
                 elif file_ext == "pdf":
-                    files_pdf.append(k.path)
+                    pdf_files.append(knowledge.path)
                 elif file_ext in ["doc", "docx"]:
-                    files_docx.append(k.path)
+                    docx_files.append(knowledge.path)
                 elif file_ext in ["md", "markdown"]:
-                    files_markdown.append(k.path)
+                    markdown_files.append(knowledge.path)
 
-        # CSV Knowledge Base
-        knowledge_csv_collection = []
-        for i in files_csv:
-            knowledge_csv_collection.append(
-                CSVKnowledgeBase(
-                    path=i,
-                    vector_db=PgVector(
-                        table_name=f"ia_csv_documents_{self.agent_model.name}",
-                        db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-                    ),
-                )
+        # Obtener bases de conocimiento para cada tipo de documento
+        knowledge_sources = []
+
+        # Documentos de texto plano
+        if plain_texts:
+            knowledge_base_plain = PlainDocumentService.get_knowledge_base(
+                self.agent_model, plain_texts
             )
+            knowledge_sources.append(knowledge_base_plain)
 
-        # JSON Knowledge Base
-        knowledge_json_collection = []
-        for i in files_json:
-            knowledge_json_collection.append(
-                JSONKnowledgeBase(
-                    path=i,
-                    vector_db=PgVector(
-                        table_name=f"ia_json_documents_{self.agent_model.name}",
-                        db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-                    ),
-                )
+        # Sitios web
+        if website_urls:
+            knowledge_base_web = WebsiteService.get_knowledge_base(
+                self.agent_model, website_urls
             )
+            if knowledge_base_web:  # WebsiteService puede devolver None si no hay URLs
+                knowledge_sources.append(knowledge_base_web)
 
-        # PDF Knowledge Base
-        knowledge_pdf_collection = []
-        for i in files_pdf:
-            knowledge_pdf_collection.append(
-                PDFKnowledgeBase(
-                    path=i,
-                    vector_db=PgVector(
-                        table_name=f"ia_pdf_documents_{self.agent_model.name}",
-                        db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-                    ),
-                )
-            )
-
-        # DOCX Knowledge Base
-        knowledge_docx_collection = []
-        for i in files_docx:
-            knowledge_docx_collection.append(
-                DocxKnowledgeBase(
-                    path=i,
-                    vector_db=PgVector(
-                        table_name=f"ia_docx_documents_{self.agent_model.name}",
-                        db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-                    ),
-                )
-            )
-
-        # Markdown Knowledge Base
-        knowledge_markdown_collection = []
-        for i in files_markdown:
-            knowledge_markdown_collection.append(
-                MarkdownKnowledgeBase(
-                    path=i,
-                    vector_db=PgVector(
-                        table_name=f"ia_markdown_documents_{self.agent_model.name}",
-                        db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-                    ),
-                )
-            )
-
-        knowledge_base_documents = DocumentKnowledgeBase(
-            documents=documents,
-            vector_db=PgVector(
-                table_name=f"ia_documents_{self.agent_model.name}",
-                db_url=IA_DB,
-                embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
-            ),
+        # Archivos CSV
+        csv_knowledge_collection = CSVDocumentService.get_knowledge_base(
+            self.agent_model, csv_files
         )
+        knowledge_sources.extend(csv_knowledge_collection)
 
-        knowledge_base_web = WebsiteKnowledgeBase(
-            urls=sites,
-            vector_db=PgVector(
-                table_name=f"ia_website_documents_{self.agent_model.name}",
-                db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
-            ),
-            embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+        # Archivos JSON
+        json_knowledge_collection = JSONDocumentService.get_knowledge_base(
+            self.agent_model, json_files
         )
+        knowledge_sources.extend(json_knowledge_collection)
 
+        # Archivos PDF
+        pdf_knowledge_collection = PDFDocumentService.get_knowledge_base(
+            self.agent_model, pdf_files
+        )
+        knowledge_sources.extend(pdf_knowledge_collection)
+
+        # Archivos DOCX
+        docx_knowledge_collection = DocxDocumentService.get_knowledge_base(
+            self.agent_model, docx_files
+        )
+        knowledge_sources.extend(docx_knowledge_collection)
+
+        # Archivos Markdown
+        markdown_knowledge_collection = MarkdownDocumentService.get_knowledge_base(
+            self.agent_model, markdown_files
+        )
+        knowledge_sources.extend(markdown_knowledge_collection)
+
+        # Combinar todas las bases de conocimiento
         combined_knowledge = CombinedKnowledgeBase(
-            sources=[
-                knowledge_base_web,
-                knowledge_base_documents,
-            ]
-            + knowledge_csv_collection
-            + knowledge_json_collection
-            + knowledge_pdf_collection
-            + knowledge_docx_collection
-            + knowledge_markdown_collection,
+            sources=knowledge_sources,
             vector_db=PgVector(
                 table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
@@ -155,6 +116,7 @@ class DocumentKnowledgeBaseService:
             ),
         )
 
+        # Cargar la base de conocimiento
         combined_knowledge.load(recreate=recreate)
 
         return combined_knowledge
