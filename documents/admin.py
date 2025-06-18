@@ -23,6 +23,7 @@ class DocumentModelAdmin(admin.ModelAdmin):
         "is_processed",
         "created_at",
         "file_link",
+        "file_to_knowledge",
     ]
 
     list_filter = [
@@ -103,6 +104,19 @@ class DocumentModelAdmin(admin.ModelAdmin):
 
     file_link.short_description = "Archivo"
     file_link.allow_tags = True
+
+    def file_to_knowledge(self, obj):
+        # TODO: Implementar la lógica para generar Knowledge desde el archivo
+        """Crea un enlace para descargar el archivo"""
+        if obj.file:
+            return format_html(
+                '<a target="_blank" class="button" disabled>Knowledge</a>',
+                obj.file.url,
+            )
+        return "No hay archivo"
+
+    file_to_knowledge.short_description = "Generar Knowledge"
+    file_to_knowledge.allow_tags = True
 
     def file_info_display(self, obj):
         """Muestra información detallada del archivo"""
