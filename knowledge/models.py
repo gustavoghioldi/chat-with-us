@@ -7,10 +7,12 @@ class KnowledgeModel(AppModel):
     CHOICES = [
         ("plain_document", "plain_document"),
         ("website", "website"),
+        ("document", "document"),
     ]
 
     name = models.CharField(max_length=255, unique=True)
     url = models.URLField(blank=True)
+    path = models.CharField(max_length=255, blank=True, null=True)
     text = models.TextField(blank=True)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=50, choices=CHOICES)

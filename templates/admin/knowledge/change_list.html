@@ -6,6 +6,9 @@
     <a href="{{ upload_url }}" class="addlink" style="margin-left: 20px; background-color: #28a745; border-color: #28a745;">
         📤 Subir Archivo CSV/JSON
     </a>
+    <a href="{{ import_documents_url }}" class="addlink" style="margin-left: 10px; background-color: #007bff; border-color: #007bff;">
+        📄 Importar Documentos
+    </a>
 {% endblock %}
 
 {% block extrahead %}
@@ -23,8 +26,17 @@
         }
 
         .addlink:hover {
+            opacity: 0.9;
+        }
+
+        .addlink:nth-child(2):hover {
             background-color: #218838 !important;
             border-color: #1e7e34 !important;
+        }
+
+        .addlink:nth-child(3):hover {
+            background-color: #0069d9 !important;
+            border-color: #0062cc !important;
         }
 
         /* Estilo para la columna de acciones */

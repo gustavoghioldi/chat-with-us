@@ -111,9 +111,9 @@ class AgentAdmin(admin.ModelAdmin):
         badges = []
         for category in categories:
             if category == "website":
-                badge = '<span style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🌐 Web</span>'
+                badge = f'<span style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">🌐 {category}</span>'
             elif category == "plain_document":
-                badge = '<span style="background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📄 Doc</span>'
+                badge = f'<span style="background: linear-gradient(135deg, #28a745, #1e7e34); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📄 plain</span>'
             else:
                 badge = f'<span style="background: linear-gradient(135deg, #6c757d, #495057); color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; margin-right: 4px;">📎 {category}</span>'
             badges.append(badge)

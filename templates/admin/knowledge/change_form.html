@@ -7,24 +7,37 @@
             const categoryField = document.querySelector("#id_category");
             const textField = document.querySelector(".field-text");
             const urlField = document.querySelector(".field-url");
+            const pathField = document.querySelector(".field-path");
 
+            // Ocultar todos los campos inicialmente
             textField.setAttribute("hidden", "true");
             urlField.setAttribute("hidden", "true");
+            pathField.setAttribute("hidden", "true");
 
-            const toggleReadOnly= () => {
+            const toggleFieldVisibility = () => {
+                // Ocultar todos los campos primero
+                textField.setAttribute("hidden", "true");
+                urlField.setAttribute("hidden", "true");
+                pathField.setAttribute("hidden", "true");
+
                 if (categoryField.value === "website") {
-                    textField.setAttribute("hidden", "true");
+                    // Para sitios web: mostrar solo URL
                     urlField.removeAttribute("hidden");
                 }
 
                 if (categoryField.value === "plain_document") {
+                    // Para documentos planos: mostrar solo texto
                     textField.removeAttribute("hidden");
-                    urlField.setAttribute("hidden", "true");
+                }
+
+                if (categoryField.value === "document") {
+                    // Para documentos: mostrar path pero no texto
+                    pathField.removeAttribute("hidden");
                 }
             }
 
-            categoryField.addEventListener("change", toggleReadOnly);
-            toggleReadOnly();
+            categoryField.addEventListener("change", toggleFieldVisibility);
+            toggleFieldVisibility();
         });
     </script>
 {% endblock %}
