@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from agno.document.base import Document
 from agno.embedder.ollama import OllamaEmbedder
 from agno.knowledge.combined import CombinedKnowledgeBase
@@ -37,8 +39,6 @@ class DocumentKnowledgeBaseService:
 
         knowledge_base_web = WebsiteKnowledgeBase(
             urls=sites,
-            max_depth=1,
-            max_links=1,
             # vector_db=PgVector(
             #     table_name="ia_website_documents",
             #     db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
@@ -52,15 +52,12 @@ class DocumentKnowledgeBaseService:
                 knowledge_base_documents,
             ],
             vector_db=PgVector(
-                table_name=f"{self.agent_model.tenant.name}_{self.agent_model.name}_ia_combined_documents",
+                table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
                 embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
             ),
         )
 
-        combined_knowledge.load(recreate=recreate)  # TODO: dar TTL o forzar
-
-        # Marcar todos los modelos de conocimiento utilizados como procesados (recreate=False)
-        self.agent_model.knoledge_text_models.update(recreate=False)
+        combined_knowledge.load(recreate=recreate)
 
         return combined_knowledge

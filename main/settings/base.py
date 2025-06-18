@@ -94,7 +94,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # AI Configuration
-IA_MODEL = os.environ.get("IA_MODEL", "llama3.2:3b")
+IA_MODEL = os.environ.get("IA_MODEL", "gemma3:12b")
 IA_DB = os.environ.get("IA_DB", "postgresql+psycopg://ai:ai@localhost:5532/ai")
 
 # Celery Configuration

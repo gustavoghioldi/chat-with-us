@@ -1,0 +1,11 @@
+nombre,apellido,ID,ciudad,pais,telefono,fecha_de_ultima_compra,monto_de_ultima_compra
+Maria,Rodriguez,12345678,Buenos Aires,Argentina,+541123456789,2024-12-15,15750.50
+Carlos,Gonzalez,87654321,Mexico City,Mexico,+525555123456,2024-11-28,8920.75
+Ana,Silva,11223344,Sao Paulo,Brasil,+5511987654321,2024-12-20,12400.00
+Pedro,Martinez,55667788,Lima,Peru,+5114567890,2024-10-14,6750.25
+Laura,Fernandez,99887766,Bogota,Colombia,+5713456789,2024-12-08,9850.90
+Diego,Lopez,33445566,Santiago,Chile,+56987654321,2024-11-30,11200.15
+Carmen,Garcia,77889900,Caracas,Venezuela,+584123456789,2024-12-22,4300.80
+Roberto,Morales,22334455,Quito,Ecuador,+5939876543,2024-12-01,7650.40
+Isabella,Torres,66778899,Montevideo,Uruguay,+59899123456,2024-11-25,13950.60
+Fernando,Ramirez,44556677,La Paz,Bolivia,+59176543210,2024-12-10,5480.25

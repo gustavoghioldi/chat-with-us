@@ -1,0 +1,29 @@
+[
+  {
+    "id": 16,
+    "nombre": "Ensalada Caesar",
+    "descripcion": "Lechuga, crutones, queso parmesano, pollo grillado y aderezo caesar",
+    "precio": 4800,
+    "tiempo_preparacion": "12 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  },
+  {
+    "id": 17,
+    "nombre": "Ensalada Caprese",
+    "descripcion": "Tomate, muzzarella de búfala, albahaca fresca y reducción de aceto balsámico",
+    "precio": 4200,
+    "tiempo_preparacion": "10 min",
+    "vegetariano": true,
+    "sin_gluten": true
+  },
+  {
+    "id": 18,
+    "nombre": "Ensalada de Quinoa",
+    "descripcion": "Quinoa, palta, tomates cherry, pepino, queso de cabra y vinagreta de limón",
+    "precio": 4600,
+    "tiempo_preparacion": "15 min",
+    "vegetariano": true,
+    "sin_gluten": true
+  }
+]

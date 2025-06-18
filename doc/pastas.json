@@ -1,0 +1,39 @@
+[
+  {
+    "id": 9,
+    "nombre": "Ñoquis de Papa",
+    "descripcion": "Ñoquis caseros con salsa a elección: tuco, crema, pesto o manteca y salvia",
+    "precio": 4500,
+    "tiempo_preparacion": "18 min",
+    "salsas": ["tuco", "crema", "pesto", "manteca y salvia"],
+    "vegetariano": true,
+    "sin_gluten": false
+  },
+  {
+    "id": 10,
+    "nombre": "Ravioles de Ricota y Espinaca",
+    "descripcion": "Ravioles caseros rellenos de ricota y espinaca con salsa rosa",
+    "precio": 5200,
+    "tiempo_preparacion": "16 min",
+    "vegetariano": true,
+    "sin_gluten": false
+  },
+  {
+    "id": 11,
+    "nombre": "Sorrentinos de Jamón y Queso",
+    "descripcion": "Sorrentinos rellenos de jamón y muzzarella con salsa fileto",
+    "precio": 5800,
+    "tiempo_preparacion": "20 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  },
+  {
+    "id": 12,
+    "nombre": "Tallarines con Mariscos",
+    "descripcion": "Tallarines caseros con langostinos, mejillones y calamares en salsa de tomate",
+    "precio": 7500,
+    "tiempo_preparacion": "25 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  }
+]

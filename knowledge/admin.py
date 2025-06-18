@@ -63,7 +63,7 @@ class FileUploadForm(forms.Form):
 @admin.register(KnowledgeModel)
 class KnowledgeAdmin(admin.ModelAdmin):
     change_form_template = "admin/knowledge/change_form.html"
-    list_display = ("name", "category", "tenant", "file_upload_actions", "created_at")
+    list_display = ("name", "category", "tenant", "created_at")
     search_fields = ("name", "url", "description", "text")
     list_filter = ("category", "tenant", "created_at")
     ordering = ("-created_at",)
@@ -114,16 +114,6 @@ class KnowledgeAdmin(admin.ModelAdmin):
             ),
         ]
         return custom_urls + urls
-
-    def file_upload_actions(self, obj):
-        """Mostrar botones de acción para subir archivos."""
-        return format_html(
-            '<a class="button" href="{}">📤 Subir Archivo</a>',
-            reverse("admin:knowledge_upload_file"),
-        )
-
-    file_upload_actions.short_description = "🔧 Acciones"
-    file_upload_actions.allow_tags = True
 
     def formatted_text_preview(self, obj):
         """Vista previa del texto formateado."""

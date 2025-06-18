@@ -1,0 +1,30 @@
+[
+  {
+    "id": 13,
+    "nombre": "Salmón Grillado",
+    "descripcion": "Filet de salmón grillado con vegetales salteados y salsa de eneldo",
+    "precio": 8800,
+    "tiempo_preparacion": "22 min",
+    "peso": "250g",
+    "vegetariano": false,
+    "sin_gluten": true
+  },
+  {
+    "id": 14,
+    "nombre": "Merluza a la Romana",
+    "descripcion": "Filet de merluza rebozado con papas españolas y ensalada mixta",
+    "precio": 6200,
+    "tiempo_preparacion": "20 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  },
+  {
+    "id": 15,
+    "nombre": "Cazuela de Mariscos",
+    "descripcion": "Variedad de mariscos en cazuela con arroz al azafrán",
+    "precio": 9500,
+    "tiempo_preparacion": "30 min",
+    "vegetariano": false,
+    "sin_gluten": true
+  }
+]

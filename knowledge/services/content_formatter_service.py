@@ -15,7 +15,6 @@ class ContentFormatterService:
     def json_to_markdown(json_data, title):
         """Convertir datos JSON a formato Markdown."""
         markdown = f"# {title}\n\n"
-        markdown += "## Datos JSON\n\n"
 
         if isinstance(json_data, list):
             if json_data and isinstance(json_data[0], dict):
@@ -114,11 +113,6 @@ class ContentFormatterService:
             markdown += f"- **Total de filas:** {len(data_rows)}\n"
             markdown += f"- **Total de columnas:** {len(headers)}\n"
             markdown += f"- **Columnas:** {', '.join(headers)}\n\n"
-
-            # Agregar datos originales
-            markdown += (
-                f"---\n\n### Datos originales en CSV:\n\n```csv\n{csv_content}\n```\n"
-            )
 
         except Exception as e:
             markdown += f"Error al procesar CSV: {str(e)}\n\n"

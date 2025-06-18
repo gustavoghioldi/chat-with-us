@@ -1,0 +1,21 @@
+[
+  {
+    "nombre": "Menú Ejecutivo",
+    "descripcion": "Entrada + plato principal + postre + bebida",
+    "precio": 6500,
+    "dias": ["lunes", "martes", "miércoles", "jueves", "viernes"],
+    "horario": "12:00 - 16:00"
+  },
+  {
+    "nombre": "2x1 en Pizzas",
+    "descripcion": "Llevás 2 pizzas y pagás 1 (la de mayor precio)",
+    "dias": ["martes"],
+    "horario": "19:00 - 23:00"
+  },
+  {
+    "nombre": "Noche de Parrilla",
+    "descripcion": "20% de descuento en todas las carnes",
+    "dias": ["sábado"],
+    "horario": "20:00 - 23:30"
+  }
+]

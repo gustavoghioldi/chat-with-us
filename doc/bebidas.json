@@ -1,0 +1,49 @@
+[
+  {
+    "id": 23,
+    "nombre": "Agua Mineral",
+    "descripcion": "Agua mineral sin gas o con gas",
+    "precio": 800,
+    "tamaño": "500ml",
+    "tipo": ["sin gas", "con gas"]
+  },
+  {
+    "id": 24,
+    "nombre": "Gaseosas",
+    "descripcion": "Coca Cola, Sprite, Fanta",
+    "precio": 1200,
+    "tamaño": "500ml",
+    "sabores": ["Coca Cola", "Sprite", "Fanta"]
+  },
+  {
+    "id": 25,
+    "nombre": "Cerveza Artesanal",
+    "descripcion": "Cerveza artesanal de la casa",
+    "precio": 2200,
+    "tamaño": "500ml",
+    "tipos": ["IPA", "Honey", "Roja"]
+  },
+  {
+    "id": 26,
+    "nombre": "Vino Tinto",
+    "descripcion": "Selección de vinos tintos argentinos",
+    "precio": 3500,
+    "tamaño": "750ml",
+    "variedades": ["Malbec", "Cabernet Sauvignon", "Bonarda"]
+  },
+  {
+    "id": 27,
+    "nombre": "Vino Blanco",
+    "descripcion": "Selección de vinos blancos argentinos",
+    "precio": 3200,
+    "tamaño": "750ml",
+    "variedades": ["Chardonnay", "Sauvignon Blanc", "Torrontés"]
+  },
+  {
+    "id": 28,
+    "nombre": "Café Espresso",
+    "descripcion": "Café espresso tradicional",
+    "precio": 900,
+    "tipos": ["simple", "doble", "cortado", "cappuccino"]
+  }
+]

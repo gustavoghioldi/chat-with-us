@@ -17,18 +17,21 @@ logger = logging.getLogger(__name__)
 
 
 class AgentService:
-    def __init__(self, agent_name: str) -> None:
-        from agents.services.agent_cache_service import AgentCacheService
-
-        # Obtener el agente del caché
-        self.__agent_model = AgentCacheService.get_agent(agent_name)
-        if self.__agent_model is None:
+    def __init__(self, agent_name: str, session_id=None) -> None:
+        # Obtener el agente directamente de la base de datos
+        try:
+            self.__agent_model = AgentModel.objects.select_related("tenant").get(
+                name=agent_name
+            )
+        except AgentModel.DoesNotExist:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
         toolkit = ToolkitService(agent_name)
         knowledge_service = DocumentKnowledgeBaseService(agent_name)
+        knowledge = knowledge_service.get_knowledge_base()
         storage_service = AgentSessionService()
 
         self.__agent = Agent(
+            name=self.__agent_model.name,
             model=Ollama(id=IA_MODEL),
             instructions=dedent(
                 f"""
@@ -41,7 +44,9 @@ class AgentService:
                 """
             ),
             tools=toolkit.get_toolkit(),
-            knowledge=knowledge_service.get_knowledge_base(),
+            show_tool_calls=True,
+            knowledge=knowledge,
+            search_knowledge=True if knowledge else False,
             storage=storage_service.get_storage(),
             add_history_to_messages=True,
             num_history_responses=3,
