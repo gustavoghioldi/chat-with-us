@@ -12,6 +12,7 @@ router.register(r"agents", AgentModelViewSet, basename="agents")
 urlpatterns = [
     path("v1/chat", ChatView.as_view(), name="api-chat"),
     path("v1/", include(router.urls)),
+    path("v1/", include("documents.urls")),  # Agregar URLs de documentos
     # URLs específicas para Knowledge con tipos
     path(
         "v1/knowledge/<str:knowledge_type>/",
