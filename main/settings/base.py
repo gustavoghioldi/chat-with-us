@@ -104,9 +104,9 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # AI Configuration
-IA_MODEL = os.environ.get("IA_MODEL", "gemma3:4b")
+IA_MODEL = os.environ.get("IA_MODEL", "llama3.2:3b")
 IA_DB = os.environ.get("IA_DB", "postgresql+psycopg://ai:ai@localhost:5532/ai")
-IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "gemma3:4b")
+IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "llama3.2:3b")
 
 # Celery Configuration
 CELERY_ACCEPT_CONTENT = ["json"]
