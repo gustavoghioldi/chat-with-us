@@ -1,0 +1,45 @@
+[
+  {
+    "id": 5,
+    "nombre": "Bife de Chorizo",
+    "descripcion": "Jugoso bife de chorizo de 400g a la parrilla con guarnición",
+    "precio": 8500,
+    "tiempo_preparacion": "25 min",
+    "peso": "400g",
+    "coccion": ["jugoso", "a punto", "bien cocido"],
+    "vegetariano": false,
+    "sin_gluten": true
+  },
+  {
+    "id": 6,
+    "nombre": "Ojo de Bife",
+    "descripcion": "Tierno ojo de bife de 350g con chimichurri casero",
+    "precio": 9200,
+    "tiempo_preparacion": "22 min",
+    "peso": "350g",
+    "coccion": ["jugoso", "a punto", "bien cocido"],
+    "vegetariano": false,
+    "sin_gluten": true
+  },
+  {
+    "id": 7,
+    "nombre": "Entraña",
+    "descripcion": "Entraña de 300g marinada con hierbas aromáticas",
+    "precio": 7800,
+    "tiempo_preparacion": "20 min",
+    "peso": "300g",
+    "coccion": ["jugoso", "a punto"],
+    "vegetariano": false,
+    "sin_gluten": true
+  },
+  {
+    "id": 8,
+    "nombre": "Costillas de Cerdo",
+    "descripcion": "Costillas de cerdo glaseadas con salsa barbacoa casera",
+    "precio": 6900,
+    "tiempo_preparacion": "35 min",
+    "peso": "450g",
+    "vegetariano": false,
+    "sin_gluten": false
+  }
+]

@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "nombre": "Empanadas Criollas",
+    "descripcion": "Empanadas caseras de carne, pollo, jamón y queso (6 unidades)",
+    "precio": 3500,
+    "tiempo_preparacion": "15 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  },
+  {
+    "id": 2,
+    "nombre": "Tabla de Fiambres",
+    "descripcion": "Selección de quesos, jamones ibéricos y salamines con aceitunas",
+    "precio": 4200,
+    "tiempo_preparacion": "10 min",
+    "vegetariano": false,
+    "sin_gluten": true
+  },
+  {
+    "id": 3,
+    "nombre": "Provoleta a la Parrilla",
+    "descripcion": "Queso provolone grillado con orégano y aceite de oliva",
+    "precio": 2800,
+    "tiempo_preparacion": "12 min",
+    "vegetariano": true,
+    "sin_gluten": true
+  },
+  {
+    "id": 4,
+    "nombre": "Matambre a la Pizza",
+    "descripcion": "Matambre relleno con muzzarella, tomate y aceitunas",
+    "precio": 3800,
+    "tiempo_preparacion": "20 min",
+    "vegetariano": false,
+    "sin_gluten": false
+  }
+]

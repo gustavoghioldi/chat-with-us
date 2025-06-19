@@ -1,0 +1,38 @@
+[
+  {
+    "id": 19,
+    "nombre": "Flan Casero",
+    "descripcion": "Flan casero con dulce de leche y crema chantilly",
+    "precio": 2200,
+    "tiempo_preparacion": "5 min",
+    "vegetariano": true,
+    "sin_gluten": true
+  },
+  {
+    "id": 20,
+    "nombre": "Tiramisu",
+    "descripcion": "Clásico tiramisu italiano con café y mascarpone",
+    "precio": 2800,
+    "tiempo_preparacion": "8 min",
+    "vegetariano": true,
+    "sin_gluten": false
+  },
+  {
+    "id": 21,
+    "nombre": "Brownie con Helado",
+    "descripcion": "Brownie de chocolate caliente con helado de vainilla y salsa de chocolate",
+    "precio": 3200,
+    "tiempo_preparacion": "12 min",
+    "vegetariano": true,
+    "sin_gluten": false
+  },
+  {
+    "id": 22,
+    "nombre": "Cheesecake de Frutos Rojos",
+    "descripcion": "Cheesecake cremoso con coulis de frutos rojos",
+    "precio": 3000,
+    "tiempo_preparacion": "6 min",
+    "vegetariano": true,
+    "sin_gluten": false
+  }
+]

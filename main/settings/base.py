@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "chats",
     "tenants",
     "tools",
+    "documents",
 ]
 
 MIDDLEWARE = [
@@ -90,12 +91,22 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+# Media files (User uploads)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# File upload settings
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+FILE_UPLOAD_PERMISSIONS = 0o644
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # AI Configuration
 IA_MODEL = os.environ.get("IA_MODEL", "llama3.2:3b")
 IA_DB = os.environ.get("IA_DB", "postgresql+psycopg://ai:ai@localhost:5532/ai")
+IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "llama3.2:3b")
 
 # Celery Configuration
 CELERY_ACCEPT_CONTENT = ["json"]

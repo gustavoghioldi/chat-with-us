@@ -49,16 +49,35 @@ class AgentModelViewSet(viewsets.ModelViewSet):
         return AgentModelSerializer
 
     def get_queryset(self):
-        """Optimizar consultas con select_related y prefetch_related."""
-        return AgentModel.objects.select_related("tenant").prefetch_related(
+        """
+        Optimizar consultas y filtrar por tenant automáticamente.
+
+        Solo retorna agentes que pertenecen al tenant autenticado.
+        """
+        queryset = AgentModel.objects.select_related("tenant").prefetch_related(
             "knoledge_text_models"
         )
 
+        # Filtrar por tenant usando el ID del META
+        tenant_id = self.request.META.get("HTTP_TENANT_ID")
+        if tenant_id:
+            queryset = queryset.filter(tenant_id=tenant_id)
+
+        return queryset
+
     def create(self, request, *args, **kwargs):
-        """Crear un nuevo agente."""
+        """
+        Crear un nuevo agente asignando automáticamente el tenant.
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        agent = serializer.save()
+
+        # Asignar automáticamente el tenant usando el ID del META
+        tenant_id = request.META.get("HTTP_TENANT_ID")
+        if tenant_id:
+            agent = serializer.save(tenant_id=tenant_id)
+        else:
+            agent = serializer.save()
 
         # Retornar el agente creado con el serializer completo
         response_serializer = AgentModelSerializer(agent)

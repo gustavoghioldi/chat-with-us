@@ -11,37 +11,42 @@ from knowledge.services.document_knowledge_base_service import (
     DocumentKnowledgeBaseService,
 )
 from main.settings import IA_MODEL
-from tools.services.toolkit_service import ToolkitService
+from tools.kit.obtener_datos_de_factura import *
 
 logger = logging.getLogger(__name__)
 
 
 class AgentService:
-    def __init__(self, agent_name: str) -> None:
-        from agents.services.agent_cache_service import AgentCacheService
-
-        # Obtener el agente del caché
-        agent_model = AgentCacheService.get_agent(agent_name)
-        if agent_model is None:
+    def __init__(self, agent_name: str, session_id=None) -> None:
+        # Obtener el agente directamente de la base de datos
+        try:
+            self.__agent_model = AgentModel.objects.select_related("tenant").get(
+                name=agent_name
+            )
+        except AgentModel.DoesNotExist:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
-        toolkit = ToolkitService(agent_name)
+        # toolkit = [obtener_datos_de_factura]
         knowledge_service = DocumentKnowledgeBaseService(agent_name)
+        knowledge = knowledge_service.get_knowledge_base()
         storage_service = AgentSessionService()
 
         self.__agent = Agent(
+            name=self.__agent_model.name,
             model=Ollama(id=IA_MODEL),
             instructions=dedent(
                 f"""
-                {agent_model.instructions}
+                {self.__agent_model.instructions}
                 """
             ),
             description=dedent(
                 f"""
-                {agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
+                {self.__agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
                 """
             ),
-            tools=toolkit.get_toolkit(),
-            knowledge=knowledge_service.get_knowledge_base(),
+            # tools=toolkit,
+            # show_tool_calls=True,
+            knowledge=knowledge,
+            search_knowledge=True if knowledge else False,
             storage=storage_service.get_storage(),
             add_history_to_messages=True,
             num_history_responses=3,
@@ -61,3 +66,7 @@ class AgentService:
 
     def __clean_response(self, response: str) -> str:
         return re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+
+    def get_agent_model(self) -> Agent:
+        """Get the agent instance."""
+        return self.__agent_model
