@@ -56,12 +56,9 @@ class DocumentModel(AppModel):
     # Tipos de documento permitidos
     DOCUMENT_TYPES = [
         ("pdf", "PDF"),
-        ("doc", "Word Document"),
         ("docx", "Word Document (DOCX)"),
         ("txt", "Text File"),
         ("csv", "CSV File"),
-        ("xlsx", "Excel File"),
-        ("xls", "Excel File (XLS)"),
         ("json", "JSON File"),
         ("md", "Markdown File"),
     ]

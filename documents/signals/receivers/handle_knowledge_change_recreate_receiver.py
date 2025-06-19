@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @receiver(signal)
-def handle_knowledge_change_recreate_receiver(_, **kwargs):
+def handle_knowledge_change_recreate_receiver(sender, **kwargs):
     if not kwargs.get("recreate"):
         knowledge: KnowledgeModel = kwargs.get("instance")
         if knowledge.document:

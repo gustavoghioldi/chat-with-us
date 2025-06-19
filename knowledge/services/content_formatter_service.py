@@ -67,7 +67,6 @@ class ContentFormatterService:
     def csv_to_markdown(csv_content, title):
         """Convertir contenido CSV a formato Markdown."""
         markdown = f"# {title}\n\n"
-        markdown += "## Datos CSV\n\n"
 
         try:
             # Parsear el CSV
