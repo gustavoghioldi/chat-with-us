@@ -52,7 +52,7 @@ class DocumentKnowledgeBaseService:
                 knowledge_base_documents,
             ],
             vector_db=PgVector(
-                table_name=f"{self.agent_model.tenant.name}_{self.agent_model.name}_ia_combined_documents",
+                table_name=f"{self.agent_model.name}_ia_combined_documents",
                 db_url=IA_DB,
                 embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
             ),
