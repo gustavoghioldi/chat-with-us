@@ -36,7 +36,7 @@ def import_documents_view(request):
                 # Crear modelo de conocimiento para el documento seleccionado
                 knowledge = KnowledgeModel.objects.create(
                     name=knowledge_name,
-                    path=selected_document.file.path,
+                    document=selected_document,
                     description=description,
                     category="document",
                     tenant=selected_document.tenant,

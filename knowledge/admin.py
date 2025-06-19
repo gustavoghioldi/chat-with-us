@@ -1,20 +1,41 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 
 from knowledge.models import KnowledgeModel
 from knowledge.views.admin.import_documents_view import import_documents_view
+from knowledge.views.admin.scrape_website_view import scrape_website_view
 from knowledge.views.admin.upload_file_view import upload_file_view
 
 
 @admin.register(KnowledgeModel)
 class KnowledgeAdmin(admin.ModelAdmin):
     change_form_template = "admin/knowledge/change_form.html"
-    list_display = ("name", "category", "tenant", "created_at")
+    list_display = ("name", "category_icon", "tenant", "created_at", "recreate_status")
     search_fields = ("name", "url", "description", "text")
-    list_filter = ("category", "tenant", "created_at")
+    list_filter = ("category", "tenant", "created_at", "recreate")
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at", "formatted_text_preview")
+
+    def has_add_permission(self, request):
+        """Deshabilitar permisos para añadir nuevos modelos de Knowledge directamente.
+        Los usuarios deben usar los botones especializados (Subir Archivo, Importar Documentos, etc.).
+        """
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Deshabilitar permisos de edición para el modelo Knowledge."""
+        return False
+
+    def get_readonly_fields(self, request, obj=None):
+        """Hacer que todos los campos sean de solo lectura."""
+        if obj:  # Solo cuando se está editando un objeto existente
+            # Obtener todos los campos del modelo
+            return [field.name for field in obj._meta.fields] + [
+                "formatted_text_preview"
+            ]
+        return self.readonly_fields
 
     fieldsets = (
         (
@@ -25,15 +46,13 @@ class KnowledgeAdmin(admin.ModelAdmin):
             "🌐 Contenido Web",
             {
                 "fields": ("url",),
-                "classes": ("collapse",),
                 "description": "Para contenido web o scraping",
             },
         ),
         (
             "📁 Contenido Documentos",
             {
-                "fields": ("path",),
-                "classes": ("collapse",),
+                "fields": ("document",),
                 "description": "Para contenido en documentos o archivos",
             },
         ),
@@ -41,7 +60,6 @@ class KnowledgeAdmin(admin.ModelAdmin):
             "📄 Contenido de Texto",
             {
                 "fields": ("text", "formatted_text_preview"),
-                "classes": ("collapse",),
                 "description": "Contenido transformado a Markdown",
             },
         ),
@@ -72,8 +90,46 @@ class KnowledgeAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(import_documents_view),
                 name="knowledge_import_documents",
             ),
+            path(
+                "scrape-website/",
+                self.admin_site.admin_view(scrape_website_view),
+                name="knowledge_scrape_website",
+            ),
+            path(
+                "mark-for-recreate/<int:object_id>/",
+                self.admin_site.admin_view(self.mark_for_recreate),
+                name="knowledge_mark_for_recreate",
+            ),
         ]
         return custom_urls + urls
+
+    def mark_for_recreate(self, request, object_id):
+        """Marca un modelo de conocimiento para ser recreado."""
+        try:
+            knowledge = KnowledgeModel.objects.get(id=object_id)
+            # Establecer recreate=True y guardar desencadenará el signal
+            knowledge.recreate = True
+            knowledge.save(update_fields=["recreate"])
+
+            # El signal manejará la actualización del documento si es necesario
+
+            self.message_user(
+                request,
+                f"✅ El modelo '{knowledge.name}' ha sido marcado para recreación.",
+                messages.SUCCESS,
+            )
+        except KnowledgeModel.DoesNotExist:
+            self.message_user(
+                request, "❌ No se encontró el modelo de conocimiento.", messages.ERROR
+            )
+
+        # Redirigir de vuelta a la vista de detalle
+        return HttpResponseRedirect(
+            reverse(
+                "admin:knowledge_knowledgemodel_change",
+                args=[object_id],
+            )
+        )
 
     def formatted_text_preview(self, obj):
         """Vista previa del texto formateado."""
@@ -87,6 +143,46 @@ class KnowledgeAdmin(admin.ModelAdmin):
 
     formatted_text_preview.short_description = "🔍 Vista Previa del Contenido"
 
+    def category_icon(self, obj):
+        """Muestra un icono según la categoría del conocimiento."""
+        icons = {
+            "plain_document": "📄",
+            "website": "🌐",
+            "document": "📁",
+        }
+        icon = icons.get(obj.category, "❓")
+        return format_html(
+            '<span title="{}" style="font-size: 1.5em;">{}</span>',
+            obj.get_category_display(),
+            icon,
+        )
+
+    category_icon.short_description = "Categoría"
+    category_icon.admin_order_field = "category"
+
+    def recreate_status(self, obj):
+        """Muestra el estado de recreación con formato."""
+        if obj.recreate:
+            return format_html(
+                '<span style="color: #28a745; font-weight: bold;">✅ Pendiente</span>'
+            )
+        return format_html('<span style="color: #6c757d;">❌ No</span>')
+
+    recreate_status.short_description = "Recrear"
+    recreate_status.admin_order_field = "recreate"
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        """Personalizar la vista de cambio para mostrar secciones según la categoría."""
+        extra_context = extra_context or {}
+        obj = self.get_object(request, object_id)
+        if obj:
+            extra_context["content_category"] = obj.category
+            extra_context["needs_recreate"] = not obj.recreate
+            extra_context["mark_for_recreate_url"] = reverse(
+                "admin:knowledge_mark_for_recreate", args=[obj.id]
+            )
+        return super().change_view(request, object_id, form_url, extra_context)
+
     def changelist_view(self, request, extra_context=None):
         """Personalizar la vista de lista para agregar botones de subida e importación."""
         extra_context = extra_context or {}
@@ -94,4 +190,5 @@ class KnowledgeAdmin(admin.ModelAdmin):
         extra_context["import_documents_url"] = reverse(
             "admin:knowledge_import_documents"
         )
+        extra_context["scrape_website_url"] = reverse("admin:knowledge_scrape_website")
         return super().changelist_view(request, extra_context)

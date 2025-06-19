@@ -56,12 +56,9 @@ class DocumentModel(AppModel):
     # Tipos de documento permitidos
     DOCUMENT_TYPES = [
         ("pdf", "PDF"),
-        ("doc", "Word Document"),
         ("docx", "Word Document (DOCX)"),
         ("txt", "Text File"),
         ("csv", "CSV File"),
-        ("xlsx", "Excel File"),
-        ("xls", "Excel File (XLS)"),
         ("json", "JSON File"),
         ("md", "Markdown File"),
     ]
@@ -149,7 +146,33 @@ class DocumentModel(AppModel):
         return f"{self.title} - {self.tenant.name}"
 
     def save(self, *args, **kwargs):
-        """Override save para capturar metadatos del archivo"""
+        """Override save para capturar metadatos del archivo y gestionar estado de procesamiento"""
+        # Verificar si es una actualización
+        is_update = self.pk is not None
+
+        # Si es una actualización, verificar si hay cambios relevantes
+        if is_update:
+            try:
+                old_instance = DocumentModel.objects.get(pk=self.pk)
+                # Si hay cambio en el archivo, resetear el estado de procesamiento
+                if self.file and (
+                    not old_instance.file or self.file.name != old_instance.file.name
+                ):
+                    self.is_processed = False
+                    self.processed_at = None
+
+                # Si cambió el estado de is_processed a True, actualizar processed_at
+                if self.is_processed and not old_instance.is_processed:
+                    from django.utils import timezone
+
+                    self.processed_at = timezone.now()
+                # Si cambió el estado de is_processed a False, resetear processed_at
+                elif not self.is_processed and old_instance.is_processed:
+                    self.processed_at = None
+
+            except DocumentModel.DoesNotExist:
+                pass
+
         if self.file:
             # Guardar el nombre original del archivo
             self.original_filename = self.file.name

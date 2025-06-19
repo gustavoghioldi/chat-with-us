@@ -43,20 +43,24 @@ class DocumentKnowledgeBaseService:
                 plain_texts.append(knowledge.text)
             elif knowledge.category == "website":
                 website_urls.append(knowledge.url)
-            elif knowledge.category == "document":
-                file_ext = (
-                    knowledge.path.split(".")[-1].lower() if knowledge.path else ""
-                )
+            elif (
+                knowledge.category == "document"
+                and knowledge.document
+                and knowledge.document.file
+            ):
+                file_path = knowledge.document.file.path
+                file_ext = knowledge.document.file.name.split(".")[-1].lower()
+
                 if file_ext == "csv":
-                    csv_files.append(knowledge.path)
+                    csv_files.append(file_path)
                 elif file_ext == "json":
-                    json_files.append(knowledge.path)
+                    json_files.append(file_path)
                 elif file_ext == "pdf":
-                    pdf_files.append(knowledge.path)
+                    pdf_files.append(file_path)
                 elif file_ext in ["doc", "docx"]:
-                    docx_files.append(knowledge.path)
+                    docx_files.append(file_path)
                 elif file_ext in ["md", "markdown"]:
-                    markdown_files.append(knowledge.path)
+                    markdown_files.append(file_path)
 
         # Obtener bases de conocimiento para cada tipo de documento
         knowledge_sources = []
@@ -118,5 +122,10 @@ class DocumentKnowledgeBaseService:
 
         # Cargar la base de conocimiento
         combined_knowledge.load(recreate=recreate)
+
+        # Usa este código para que se emitan las señales:
+        for knowledge in self.agent_model.knoledge_text_models.filter(recreate=True):
+            knowledge.recreate = False
+            knowledge.save()
 
         return combined_knowledge

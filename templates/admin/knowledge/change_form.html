@@ -1,43 +1,141 @@
 {% extends "admin/change_form.html" %}
 
+{% block content_title %}
+    {{ block.super }}
+    {% if needs_recreate %}
+    <div style="margin-top: 10px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px;">
+        <p style="margin: 0; color: #856404;">
+            <strong>⚠️ Atención:</strong> Este modelo de conocimiento necesita ser recreado.
+            <a href="{{ mark_for_recreate_url }}" style="color: #0056b3; text-decoration: underline;">Programar recreación</a>
+        </p>
+    </div>
+    {% elif original %}
+    <div style="margin-top: 10px; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px;">
+        <p style="margin: 0; color: #155724;">
+            <strong>✅ Estado:</strong> Este modelo de conocimiento está programado para ser recreado o ya está actualizado.
+        </p>
+    </div>
+    {% endif %}
+{% endblock %}
+
 {% block extrahead %}
     {{ block.super }}
     <script>
-        document.addEventListener("DOMContentLoaded",  () => {
+        document.addEventListener("DOMContentLoaded", function() {
             const categoryField = document.querySelector("#id_category");
             const textField = document.querySelector(".field-text");
             const urlField = document.querySelector(".field-url");
-            const pathField = document.querySelector(".field-path");
+            const documentField = document.querySelector(".field-document");
 
-            // Ocultar todos los campos inicialmente
-            textField.setAttribute("hidden", "true");
-            urlField.setAttribute("hidden", "true");
-            pathField.setAttribute("hidden", "true");
+            // Obtener las fieldsets (secciones) completas para mostrar/ocultar
+            const textFieldset = document.querySelector(".field-text").closest("fieldset");
+            const urlFieldset = document.querySelector(".field-url").closest("fieldset");
+            const documentFieldset = document.querySelector(".field-document").closest("fieldset");
 
-            const toggleFieldVisibility = () => {
-                // Ocultar todos los campos primero
-                textField.setAttribute("hidden", "true");
-                urlField.setAttribute("hidden", "true");
-                pathField.setAttribute("hidden", "true");
+            // Función para hacer un fieldset visible o no
+            const setFieldsetVisibility = function(fieldset, isVisible) {
+                if (isVisible) {
+                    fieldset.style.display = "block";
+                    // Expandir el fieldset en modo solo lectura
+                    const h2 = fieldset.querySelector("h2");
+                    if (h2 && h2.className.includes("collapse-toggle")) {
+                        if (fieldset.classList.contains("collapsed")) {
+                            fieldset.classList.remove("collapsed");
+                        }
+                    }
+                } else {
+                    fieldset.style.display = "none";
+                }
+            };
+
+            const toggleFieldVisibility = function() {
+                // Ocultar todos los fieldsets primero
+                setFieldsetVisibility(textFieldset, false);
+                setFieldsetVisibility(urlFieldset, false);
+                setFieldsetVisibility(documentFieldset, false);
 
                 if (categoryField.value === "website") {
                     // Para sitios web: mostrar solo URL
-                    urlField.removeAttribute("hidden");
+                    setFieldsetVisibility(urlFieldset, true);
                 }
 
                 if (categoryField.value === "plain_document") {
                     // Para documentos planos: mostrar solo texto
-                    textField.removeAttribute("hidden");
+                    setFieldsetVisibility(textFieldset, true);
                 }
 
                 if (categoryField.value === "document") {
-                    // Para documentos: mostrar path pero no texto
-                    pathField.removeAttribute("hidden");
+                    // Para documentos: mostrar selección de documento pero no texto
+                    setFieldsetVisibility(documentFieldset, true);
                 }
-            }
+            };
 
+            // Ejecutar inicialmente y también cuando cambie la categoría
             categoryField.addEventListener("change", toggleFieldVisibility);
+
+            // Aplicar las reglas de visibilidad cuando la página cargue
             toggleFieldVisibility();
+
+            // Asegurarse de que la categoría correcta esté seleccionada (para modo solo lectura)
+            {% if content_category %}
+                // Marcar visualmente la categoría actual
+                var selectedOption = document.querySelector("#id_category option[value='{{ content_category }}']");
+                if (selectedOption) {
+                    selectedOption.selected = true;
+                    // Volver a aplicar las reglas de visibilidad
+                    toggleFieldVisibility();
+                }
+            {% endif %}
+
+            // Añadir clases para estilos de solo lectura
+            document.body.classList.add("view-only-mode");
+
+            // Desactivar todos los campos para que sean de solo lectura
+            var allInputs = document.querySelectorAll("input, select, textarea");
+            allInputs.forEach(function(input) {
+                input.setAttribute("disabled", "disabled");
+                input.setAttribute("readonly", "readonly");
+            });
+
+            // Agregar un estilo visual para contenido de solo lectura
+            var styleElement = document.createElement("style");
+            styleElement.textContent = `
+                .view-only-mode .readonly .readonly {
+                    background-color: #f8f8f8;
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                    border-radius: 3px;
+                }
+                .view-only-mode fieldset {
+                    margin-top: 20px;
+                }
+                .view-only-mode fieldset > h2 {
+                    cursor: default !important;
+                }
+            `;
+            document.head.appendChild(styleElement);
         });
     </script>
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+    <!-- Ocultar botones de envío para hacer el formulario completamente de solo lectura -->
+    {% if needs_recreate %}
+    <div class="submit-row">
+        <a href="{{ mark_for_recreate_url }}" class="button default" style="background-color: #28a745; color: white;">
+            🔄 Marcar para recreación del conocimiento
+        </a>
+    </div>
+    <style>
+        .submit-row {
+            padding: 12px 14px;
+            margin: 0 0 20px;
+            background: #f8f8f8;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            text-align: right;
+            overflow: hidden;
+        }
+    </style>
+    {% endif %}
 {% endblock %}
