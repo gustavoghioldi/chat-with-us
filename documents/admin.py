@@ -15,7 +15,7 @@ class DocumentModelAdmin(admin.ModelAdmin):
 
     list_display = [
         "title",
-        "document_type",
+        "document_type_display",
         "tenant",
         "uploaded_by",
         "file_size_display",
@@ -23,7 +23,7 @@ class DocumentModelAdmin(admin.ModelAdmin):
         "is_processed",
         "created_at",
         "file_link",
-        "file_to_knowledge",
+        # "file_to_knowledge",
     ]
 
     list_filter = [
@@ -61,7 +61,15 @@ class DocumentModelAdmin(admin.ModelAdmin):
         ),
         (
             "Archivo",
-            {"fields": ("file", "document_type", "file_info_display", "file_preview")},
+            {
+                "fields": (
+                    "file",
+                    "document_type",
+                    "file_info_display",
+                    "file_preview",
+                ),
+                "description": "El tipo de documento se detecta automáticamente. Solo especifique uno si desea sobreescribir la detección automática.",
+            },
         ),
         ("Estado", {"fields": ("is_active", "is_processed", "processed_at")}),
         (
@@ -105,30 +113,60 @@ class DocumentModelAdmin(admin.ModelAdmin):
     file_link.short_description = "Archivo"
     file_link.allow_tags = True
 
-    def file_to_knowledge(self, obj):
-        # TODO: Implementar la lógica para generar Knowledge desde el archivo
-        """Crea un enlace para descargar el archivo"""
-        if obj.file:
-            return format_html(
-                '<a target="_blank" class="button" disabled>Knowledge</a>',
-                obj.file.url,
-            )
-        return "No hay archivo"
+    def document_type_display(self, obj):
+        """Muestra el tipo de documento con indicador de auto-detección"""
+        if not obj.document_type:
+            return format_html('<span style="color: red;">No detectado</span>')
 
-    file_to_knowledge.short_description = "Generar Knowledge"
-    file_to_knowledge.allow_tags = True
+        if obj.is_document_type_auto_detected():
+            return format_html(
+                '{} <span style="color: green; font-size: 0.8em;">●</span>',
+                obj.get_document_type_display(),
+            )
+        else:
+            return format_html(
+                '{} <span style="color: blue; font-size: 0.8em;">●</span>',
+                obj.get_document_type_display(),
+            )
+
+    document_type_display.short_description = "Tipo (● Auto / ● Manual)"
+    document_type_display.admin_order_field = "document_type"
+
+    # def file_to_knowledge(self, obj):
+    #     # TODO: Implementar la lógica para generar Knowledge desde el archivo
+    #     """Crea un enlace para descargar el archivo"""
+    #     if obj.file:
+    #         return format_html(
+    #             '<a target="_blank" class="button" disabled>Knowledge</a>',
+    #             obj.file.url,
+    #         )
+    #     return "No hay archivo"
+
+    # file_to_knowledge.short_description = "Generar Knowledge"
+    # file_to_knowledge.allow_tags = True
 
     def file_info_display(self, obj):
         """Muestra información detallada del archivo"""
         if not obj.file:
             return "No hay archivo"
 
+        # Información básica del archivo
         info = f"""
         <strong>Nombre original:</strong> {obj.original_filename}<br>
         <strong>Tamaño:</strong> {obj.get_file_size_display()}<br>
         <strong>Extensión:</strong> {obj.file_extension}<br>
-        <strong>Ruta:</strong> {obj.file.name}
+        <strong>Ruta:</strong> {obj.file.name}<br>
         """
+
+        # Información sobre auto-detección
+        if obj.document_type:
+            if obj.is_document_type_auto_detected():
+                info += f'<strong>Tipo:</strong> {obj.get_document_type_display()} <span style="color: green;">(Auto-detectado)</span><br>'
+            else:
+                info += f'<strong>Tipo:</strong> {obj.get_document_type_display()} <span style="color: blue;">(Manual)</span><br>'
+        else:
+            info += '<strong>Tipo:</strong> <span style="color: red;">No detectado</span><br>'
+
         return mark_safe(info)
 
     file_info_display.short_description = "Información del archivo"
@@ -152,38 +190,3 @@ class DocumentModelAdmin(admin.ModelAdmin):
             )
 
     file_preview.short_description = "Vista previa"
-
-    # Acciones personalizadas
-    @admin.action(description="Marcar como procesado")
-    def mark_as_processed(self, request, queryset):
-        """Marca los documentos seleccionados como procesados"""
-        from django.utils import timezone
-
-        updated = queryset.update(is_processed=True, processed_at=timezone.now())
-        self.message_user(
-            request, f"{updated} documento(s) marcado(s) como procesado(s)."
-        )
-
-    @admin.action(description="Marcar como no procesado")
-    def mark_as_unprocessed(self, request, queryset):
-        """Marca los documentos seleccionados como no procesados"""
-        updated = queryset.update(is_processed=False, processed_at=None)
-        self.message_user(
-            request, f"{updated} documento(s) marcado(s) como no procesado(s)."
-        )
-
-    @admin.action(description="Desactivar documentos")
-    def deactivate_documents(self, request, queryset):
-        """Desactiva los documentos seleccionados"""
-        updated = queryset.update(is_active=False)
-        self.message_user(request, f"{updated} documento(s) desactivado(s).")
-
-    def get_queryset(self, request):
-        """Optimiza las consultas con select_related"""
-        return super().get_queryset(request).select_related("tenant", "uploaded_by")
-
-    def save_model(self, request, obj, form, change):
-        """Auto-asigna el usuario que sube el archivo si no está especificado"""
-        if not change and not obj.uploaded_by:
-            obj.uploaded_by = request.user
-        super().save_model(request, obj, form, change)

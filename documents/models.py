@@ -56,12 +56,29 @@ class DocumentModel(AppModel):
     # Tipos de documento permitidos
     DOCUMENT_TYPES = [
         ("pdf", "PDF"),
+        ("doc", "Word Document (DOC)"),
         ("docx", "Word Document (DOCX)"),
         ("txt", "Text File"),
         ("csv", "CSV File"),
+        ("xlsx", "Excel File (XLSX)"),
+        ("xls", "Excel File (XLS)"),
         ("json", "JSON File"),
         ("md", "Markdown File"),
     ]
+
+    # Mapeo extendido de extensiones a tipos de documento
+    EXTENSION_MAPPING = {
+        "pdf": "pdf",
+        "doc": "doc",
+        "docx": "docx",
+        "txt": "txt",
+        "csv": "csv",
+        "xlsx": "xlsx",
+        "xls": "xls",
+        "json": "json",
+        "md": "md",
+        "markdown": "md",  # Alias para markdown
+    }
 
     # Información básica del documento
     title = models.CharField(
@@ -94,15 +111,21 @@ class DocumentModel(AppModel):
 
     # Tipo de documento
     document_type = models.CharField(
-        max_length=10, choices=DOCUMENT_TYPES, help_text="Tipo de documento"
+        max_length=10,
+        choices=DOCUMENT_TYPES,
+        blank=True,  # Permitir que esté vacío para auto-detección
+        help_text="Tipo de documento (se detecta automáticamente si no se especifica)",
     )
 
     # Metadatos del archivo
     file_size = models.PositiveIntegerField(
-        help_text="Tamaño del archivo en bytes", editable=False
+        default=0, help_text="Tamaño del archivo en bytes", editable=False
     )
     original_filename = models.CharField(
-        max_length=255, help_text="Nombre original del archivo", editable=False
+        max_length=255,
+        blank=True,
+        help_text="Nombre original del archivo",
+        editable=False,
     )
 
     # Relaciones
@@ -175,17 +198,19 @@ class DocumentModel(AppModel):
 
         if self.file:
             # Guardar el nombre original del archivo
-            self.original_filename = self.file.name
+            if hasattr(self.file, "name"):
+                self.original_filename = os.path.basename(self.file.name)
 
             # Guardar el tamaño del archivo
-            if hasattr(self.file, "size"):
+            if hasattr(self.file, "size") and self.file.size:
                 self.file_size = self.file.size
 
-            # Detectar tipo de documento basado en la extensión
+            # Auto-detectar tipo de documento basado en la extensión
             if not self.document_type:
                 ext = os.path.splitext(self.file.name)[1].lower().lstrip(".")
-                if ext in [choice[0] for choice in self.DOCUMENT_TYPES]:
-                    self.document_type = ext
+                detected_type = self.EXTENSION_MAPPING.get(ext)
+                if detected_type:
+                    self.document_type = detected_type
 
         super().save(*args, **kwargs)
 
@@ -194,11 +219,24 @@ class DocumentModel(AppModel):
         if not self.file_size:
             return "0 bytes"
 
+        size = float(self.file_size)
         for unit in ["bytes", "KB", "MB", "GB"]:
-            if self.file_size < 1024.0:
-                return f"{self.file_size:.1f} {unit}"
-            self.file_size /= 1024.0
-        return f"{self.file_size:.1f} TB"
+            if size < 1024.0:
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} TB"
+
+    def is_document_type_auto_detected(self):
+        """Indica si el tipo de documento fue detectado automáticamente"""
+        if not self.file or not self.document_type:
+            return False
+
+        ext = os.path.splitext(self.file.name)[1].lower().lstrip(".")
+        return self.EXTENSION_MAPPING.get(ext) == self.document_type
+
+    def get_supported_extensions(self):
+        """Retorna las extensiones soportadas"""
+        return list(self.EXTENSION_MAPPING.keys())
 
     def get_absolute_url(self):
         """Retorna la URL del archivo"""

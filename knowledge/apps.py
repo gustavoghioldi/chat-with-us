@@ -12,6 +12,3 @@ class KnowledgeConfig(AppConfig):
         """
         # Signals existentes
         # Nuevo sistema centralizado de signals
-        import knowledge.signals
-        import knowledge.signals.receivers.document_update_receiver
-        import knowledge.signals.receivers.knowledge_model_change_receiver

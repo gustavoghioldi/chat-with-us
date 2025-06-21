@@ -10,5 +10,3 @@ class DocumentsConfig(AppConfig):
         Importar signals cuando la aplicación está lista.
         Esto asegura que los signals estén correctamente registrados.
         """
-        import documents.signals.receivers.handle_knowledge_change_recreate_receiver  # noqa
-        import documents.signals.receivers.handler_document_update_receiver
