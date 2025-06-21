@@ -5,17 +5,6 @@ from django.utils.safestring import mark_safe
 
 from agents.models import AgentModel
 
-# class KnowledgeInline(admin.TabularInline):
-#     """Inline elegante para mostrar los Knowledge Models asociados"""
-#     model = AgentModel.knoledge_text_models.through
-#     extra = 1
-#     verbose_name = "Knowledge Model"
-#     verbose_name_plural = "Knowledge Models Asociados"
-
-#     def get_queryset(self, request):
-#         qs = super().get_queryset(request)
-#         return qs.select_related('knowledgemodel')
-
 
 # Register your models here.
 @admin.register(AgentModel)

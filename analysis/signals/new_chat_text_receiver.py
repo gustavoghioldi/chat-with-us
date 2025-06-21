@@ -1,13 +1,18 @@
-from django.dispatch import receiver
-
 from analysis.tasks import run_sentiment_analysis
-from chats.signals.content_chat_emit import new_chat_text
+from chats.models import ContentChatModel
+from main.signals import track_model_changes
 
 
-@receiver(new_chat_text)
-def handler(sender, **kwargs):
-    run_sentiment_analysis.delay(
-        message=kwargs["message"],
-        session_id=kwargs["session_id"],
-        timestamp=kwargs["timestamp"],
-    )
+@track_model_changes(ContentChatModel)
+def handle_new_chat_text(
+    sender, instance, created, updated_fields, change_type, **kwargs
+):
+    """
+    Handler para nuevos mensajes de chat.
+    """
+    if created:
+        run_sentiment_analysis(
+            message=instance.request,
+            session_id=instance.chat.session_id,
+            timestamp=instance.created_at,
+        )
