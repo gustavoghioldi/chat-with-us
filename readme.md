@@ -56,7 +56,7 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
    docker run -d \
      -e POSTGRES_PASSWORD=barba \
      -v appvolume:/var/lib/postgresql/data \
-     -p 5432:5432 \
+     -p 5632:5432 \
      --name pgapp \
      postgres:latest
    ```
@@ -86,16 +86,23 @@ A Django-based platform for creating and managing AI-powered chat agents with cu
    ```bash
    python manage.py migrate
    ```
+7. **Run redis**
+   ```bash
+   docker run -p 6379:6379 redis
+   ```
 
-7. **Run the Development Server**
+8. **Run the Development Server**
    ```bash
    python manage.py runserver
    ```
-8. **Run Celery**
-  ```
-  celery -A main worker --loglevel=info
-  ```
+
+9. **Run Celery**
+     ```
+     celery -A main worker --loglevel=info
+     ```
 The application will be available at `http://localhost:8000`
+
+
 
 ## Development Workflow
 
