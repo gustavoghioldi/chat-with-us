@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from django.db import models
 from django.utils.html import format_html
@@ -6,14 +7,87 @@ from django.utils.safestring import mark_safe
 from agents.models import AgentModel
 
 
+class AgentAdminForm(forms.ModelForm):
+    """Formulario personalizado para el admin de AgentModel con validaciones mejoradas"""
+
+    class Meta:
+        model = AgentModel
+        fields = "__all__"
+        widgets = {
+            "temperature": forms.NumberInput(
+                attrs={
+                    "step": "0.05",
+                    "min": "0.0",
+                    "max": "1.0",
+                    "class": "form-control",
+                    "placeholder": "0.7 (recomendado: 0.3-0.8)",
+                    "title": "Valor entre 0.0 y 1.0 que controla la aleatoriedad de las respuestas",
+                }
+            ),
+            "top_p": forms.NumberInput(
+                attrs={
+                    "step": "0.05",
+                    "min": "0.0",
+                    "max": "1.0",
+                    "class": "form-control",
+                    "placeholder": "0.9 (recomendado: 0.8-0.95)",
+                    "title": "Valor entre 0.0 y 1.0 que controla la diversidad de las respuestas",
+                }
+            ),
+            "max_tokens": forms.NumberInput(
+                attrs={
+                    "min": "50",
+                    "max": "10000",
+                    "class": "form-control",
+                    "placeholder": "100 (recomendado: 50-200)",
+                    "title": "Número máximo de tokens en la respuesta (50-10000)",
+                }
+            ),
+        }
+
+    def clean_temperature(self):
+        """Validación adicional para temperature"""
+        temperature = self.cleaned_data.get("temperature")
+        if temperature is not None:
+            if temperature < 0.0 or temperature > 1.0:
+                raise forms.ValidationError(
+                    "El valor de temperature debe estar entre 0.0 y 1.0"
+                )
+        return temperature
+
+    def clean_top_p(self):
+        """Validación adicional para top_p"""
+        top_p = self.cleaned_data.get("top_p")
+        if top_p is not None:
+            if top_p < 0.0 or top_p > 1.0:
+                raise forms.ValidationError(
+                    "El valor de top_p debe estar entre 0.0 y 1.0"
+                )
+        return top_p
+
+    def clean_max_tokens(self):
+        """Validación adicional para max_tokens"""
+        max_tokens = self.cleaned_data.get("max_tokens")
+        if max_tokens is not None:
+            if max_tokens < 1:
+                raise forms.ValidationError("El número de tokens debe ser mayor a 0")
+            if max_tokens > 10000:
+                raise forms.ValidationError(
+                    "El número de tokens no puede ser mayor a 10,000"
+                )
+        return max_tokens
+
+
 # Register your models here.
 @admin.register(AgentModel)
 class AgentAdmin(admin.ModelAdmin):
+    form = AgentAdminForm
     list_display = (
         "name",
         "get_knowledge_summary",
         "get_knowledge_categories",
         "get_api_tools_summary",
+        "get_config_summary",
         "agent_model_id",
         "tenant",
         "created_at",
@@ -25,6 +99,8 @@ class AgentAdmin(admin.ModelAdmin):
         "updated_at",
         "tenant",
         "knoledge_text_models__category",
+        "temperature",
+        "max_tokens",
     )
     ordering = ("-created_at",)
     filter_horizontal = ("knoledge_text_models", "api_call_models")
@@ -42,6 +118,18 @@ class AgentAdmin(admin.ModelAdmin):
                     "tenant",
                 ),
                 "description": "Configuración básica del agente de IA",
+            },
+        ),
+        (
+            "⚙️ Configuraciones",
+            {
+                "fields": (
+                    "temperature",
+                    "top_p",
+                    "max_tokens",
+                ),
+                "description": "Parámetros de configuración para el comportamiento del agente de IA",
+                "classes": ("wide",),
             },
         ),
         (
@@ -66,6 +154,10 @@ class AgentAdmin(admin.ModelAdmin):
         ),
     )
     readonly_fields = ("created_at", "updated_at")
+
+    class Media:
+        css = {"all": ("admin/css/agents_admin.css",)}
+        js = ("admin/js/agents_admin.js",)
 
     def get_knowledge_summary(self, obj):
         """Muestra un resumen elegante de los knowledge models"""
@@ -133,6 +225,37 @@ class AgentAdmin(admin.ModelAdmin):
     get_api_tools_summary.short_description = "API Tools"
     get_api_tools_summary.admin_order_field = "api_tools_count"
 
+    def get_config_summary(self, obj):
+        """Muestra un resumen elegante de la configuración del agente"""
+        config_info = f"🌡️ {obj.temperature} | 🎯 {obj.top_p} | 📊 {obj.max_tokens}"
+
+        # Determinar el color basado en los valores
+        temp_status = (
+            "🟢"
+            if 0.3 <= obj.temperature <= 0.8
+            else "🟡" if obj.temperature < 0.3 or obj.temperature > 0.8 else "🔴"
+        )
+        top_p_status = "🟢" if 0.8 <= obj.top_p <= 0.95 else "🟡"
+        tokens_status = (
+            "🟢"
+            if 50 <= obj.max_tokens <= 200
+            else "🟡" if obj.max_tokens < 50 else "🔴"
+        )
+
+        return format_html(
+            '<span style="font-family: monospace; font-size: 11px; background: #f8f9fa; padding: 2px 6px; border-radius: 4px; border-left: 3px solid #007bff;">'
+            "{} T:{} | {} P:{} | {} M:{}"
+            "</span>",
+            temp_status,
+            obj.temperature,
+            top_p_status,
+            obj.top_p,
+            tokens_status,
+            obj.max_tokens,
+        )
+
+    get_config_summary.short_description = "Configuración"
+
     def get_queryset(self, request):
         """Optimiza las consultas para mejor rendimiento"""
         qs = super().get_queryset(request)
@@ -179,6 +302,40 @@ class AgentAdmin(admin.ModelAdmin):
                     }
                     extra_context["knowledge_stats"] = knowledge_stats
                     extra_context["api_tools_stats"] = api_tools_stats
+
+                    # Agregar estadísticas de configuración
+                    config_stats = {
+                        "temperature": {
+                            "value": obj.temperature,
+                            "status": (
+                                "optimal"
+                                if 0.3 <= obj.temperature <= 0.8
+                                else (
+                                    "warning"
+                                    if obj.temperature < 0.3 or obj.temperature > 0.8
+                                    else "danger"
+                                )
+                            ),
+                            "description": "Controla la creatividad/aleatoriedad de las respuestas",
+                        },
+                        "top_p": {
+                            "value": obj.top_p,
+                            "status": (
+                                "optimal" if 0.8 <= obj.top_p <= 0.95 else "warning"
+                            ),
+                            "description": "Controla la diversidad de tokens considerados",
+                        },
+                        "max_tokens": {
+                            "value": obj.max_tokens,
+                            "status": (
+                                "optimal"
+                                if 50 <= obj.max_tokens <= 200
+                                else "warning" if obj.max_tokens < 50 else "danger"
+                            ),
+                            "description": "Número máximo de tokens en la respuesta",
+                        },
+                    }
+                    extra_context["config_stats"] = config_stats
             except Exception:
                 pass
         return super().change_view(request, object_id, form_url, extra_context)

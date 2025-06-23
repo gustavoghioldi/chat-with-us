@@ -32,7 +32,14 @@ class AgentService:
 
         self.__agent = Agent(
             name=self.__agent_model.name,
-            model=Ollama(id=IA_MODEL),
+            model=Ollama(
+                id=IA_MODEL,
+                options={
+                    "max_tokens": self.__agent_model.max_tokens,  # Número específico de tokens a predecir
+                    "temperature": self.__agent_model.temperature,  # Controla la aleatoriedad de las respuestas (0.0 a 1.0)
+                    "top_p": self.__agent_model.top_p,  # Controla la diversidad de las respuestas (0.0 a 1.0)
+                },
+            ),
             instructions=dedent(
                 f"""
                 {self.__agent_model.instructions}

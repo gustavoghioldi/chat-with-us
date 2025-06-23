@@ -1,3 +1,6 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 from knowledge.models import KnowledgeModel
 from main.models import AppModel, models
 from tools.models.api_call_model import ApiCallModel
@@ -15,6 +18,20 @@ class AgentModel(AppModel):
     )
     knoledge_text_models = models.ManyToManyField(KnowledgeModel, blank=True)
     api_call_models = models.ManyToManyField(ApiCallModel, blank=True)
+    max_tokens = models.PositiveIntegerField(
+        default=100,
+        help_text="Número máximo de tokens a predecir en la respuesta del agente",
+    )
+    temperature = models.FloatField(
+        default=0.7,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+        help_text="Controla la aleatoriedad de las respuestas del agente (0.0 a 1.0)",
+    )
+    top_p = models.FloatField(
+        default=0.9,
+        validators=[MinValueValidator(0.0), MaxValueValidator(1.0)],
+        help_text="Controla la diversidad de las respuestas del agente (0.0 a 1.0)",
+    )
 
     agent_model_id = models.CharField(
         max_length=50,
@@ -34,3 +51,32 @@ class AgentModel(AppModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        """
+        Validaciones personalizadas para el modelo AgentModel.
+        """
+        super().clean()
+
+        # Validar temperature
+        if self.temperature is not None:
+            if self.temperature < 0.0 or self.temperature > 1.0:
+                raise ValidationError(
+                    {
+                        "temperature": "El valor de temperatura debe estar entre 0.0 y 1.0"
+                    }
+                )
+
+        # Validar top_p
+        if self.top_p is not None:
+            if self.top_p < 0.0 or self.top_p > 1.0:
+                raise ValidationError(
+                    {"top_p": "El valor de top_p debe estar entre 0.0 y 1.0"}
+                )
+
+    def save(self, *args, **kwargs):
+        """
+        Override del método save para ejecutar validaciones completas.
+        """
+        self.full_clean()  # Ejecuta las validaciones del modelo
+        super().save(*args, **kwargs)

@@ -1,0 +1,119 @@
+/* Estilos personalizados para el admin de AgentModel */
+
+/* Estilos para los campos de configuración */
+.field-temperature, .field-top_p, .field-max_tokens {
+    position: relative;
+}
+
+/* Estilos para los inputs de configuración */
+.field-temperature input, .field-top_p input, .field-max_tokens input {
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    transition: border-color 0.3s ease;
+}
+
+/* Estados de validación */
+.field-temperature input:valid, .field-top_p input:valid, .field-max_tokens input:valid {
+    border-color: #28a745;
+}
+
+.field-temperature input:invalid, .field-top_p input:invalid, .field-max_tokens input:invalid {
+    border-color: #dc3545;
+}
+
+/* Tooltip de ayuda */
+.config-help {
+    position: absolute;
+    top: -5px;
+    right: 5px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: help;
+}
+
+.config-help:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    font-size: 11px;
+    z-index: 1000;
+}
+
+/* Estilos para el fieldset de configuraciones */
+.field-box fieldset.module.aligned h2:contains("Configuraciones") {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px 4px 0 0;
+    margin: 0;
+}
+
+/* Indicadores de estado en los valores */
+.config-indicator {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.config-indicator.optimal {
+    color: #28a745;
+}
+
+.config-indicator.warning {
+    color: #ffc107;
+}
+
+.config-indicator.danger {
+    color: #dc3545;
+}
+
+/* Estilos para mensajes de error */
+.errorlist {
+    color: #dc3545;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 5px 10px;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* Estilos para ayuda contextual */
+.help {
+    color: #6c757d;
+    font-size: 11px;
+    font-style: italic;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .config-help {
+        position: static;
+        margin-left: 10px;
+    }
+
+    .config-help:hover::after {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+        transform: none;
+    }
+}
