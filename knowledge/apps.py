@@ -10,5 +10,4 @@ class KnowledgeConfig(AppConfig):
         Importar signals cuando la aplicación está lista.
         Esto asegura que los signals estén correctamente registrados.
         """
-        # Signals existentes
-        # Nuevo sistema centralizado de signals
+        import knowledge.signals
