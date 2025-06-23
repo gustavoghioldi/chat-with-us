@@ -64,7 +64,6 @@ class DocumentModelAdmin(admin.ModelAdmin):
             {
                 "fields": (
                     "file",
-                    "document_type",
                     "file_info_display",
                     "file_preview",
                 ),
