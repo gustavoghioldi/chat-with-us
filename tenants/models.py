@@ -21,7 +21,7 @@ class TenantModel(AppModel):
         max_length=50,
         choices=[
             ("ollama", "OLLAMA"),
-            ("bedrock", "BEDROCK"),
+            ("gemini", "GEMINI"),
         ],
         default="ollama",
     )

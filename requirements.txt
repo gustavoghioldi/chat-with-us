@@ -1,7 +1,9 @@
 absl-py==2.3.0
 agno==1.6.1
 aiofiles==24.1.0
-amqp==5.3.1
+amqpDjango==4.2.21
+django-cors-headers==4.7.0
+django-filter==24.33.1
 annotated-types==0.7.0
 anyio==4.9.0
 appnope==0.1.4
@@ -68,6 +70,7 @@ fqdn==1.5.1
 gast==0.6.0
 gitdb==4.0.12
 GitPython==3.1.44
+google-generativeai==0.8.3
 google-pasta==0.2.0
 greenlet==3.2.2
 grpcio==1.73.0

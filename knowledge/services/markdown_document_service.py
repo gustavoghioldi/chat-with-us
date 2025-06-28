@@ -1,4 +1,4 @@
-from agno.embedder.ollama import OllamaEmbedder
+from agno.embedder.google import GeminiEmbedder
 from agno.knowledge.markdown import MarkdownKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
@@ -9,13 +9,14 @@ class MarkdownDocumentService:
     """Servicio para gestionar documentos Markdown."""
 
     @staticmethod
-    def get_knowledge_base(agent_model, file_paths):
+    def get_knowledge_base(agent_model, file_paths, ia_token=None):
         """
         Crea una base de conocimiento para archivos Markdown.
 
         Args:
             agent_model: Modelo del agente
             file_paths: Lista de rutas a archivos Markdown
+            ia_token: Token de IA para el embedder
 
         Returns:
             list: Lista de bases de conocimiento para archivos Markdown
@@ -32,7 +33,7 @@ class MarkdownDocumentService:
                     vector_db=PgVector(
                         table_name=f"ia_markdown_documents_{agent_model.name}",
                         db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+                        embedder=GeminiEmbedder(api_key=ia_token),
                     ),
                 )
             )

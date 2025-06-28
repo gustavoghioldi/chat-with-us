@@ -27,9 +27,7 @@ urlpatterns = [
     path("api/", include("api.urls")),
 ]
 
-if os.environ.get("DJANGO_ENV") == "development":
-    import debug_toolbar
-
-    urlpatterns.append(path("__debug__/", include(debug_toolbar.urls)))
+if os.environ.get("DJANGO_ENV") == "development" and settings.DEBUG:
+    # Solo agregar archivos estáticos en desarrollo
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

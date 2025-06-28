@@ -1,4 +1,4 @@
-from agno.embedder.ollama import OllamaEmbedder
+from agno.embedder.google import GeminiEmbedder
 from agno.knowledge.csv import CSVKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
@@ -9,13 +9,14 @@ class CSVDocumentService:
     """Servicio para gestionar documentos CSV."""
 
     @staticmethod
-    def get_knowledge_base(agent_model, file_paths):
+    def get_knowledge_base(agent_model, file_paths, ia_token=None):
         """
         Crea una base de conocimiento para archivos CSV.
 
         Args:
             agent_model: Modelo del agente
             file_paths: Lista de rutas a archivos CSV
+            ia_token: Token de IA para el embedder
 
         Returns:
             list: Lista de bases de conocimiento para archivos CSV
@@ -32,7 +33,7 @@ class CSVDocumentService:
                     vector_db=PgVector(
                         table_name=f"ia_csv_documents_{agent_model.name}",
                         db_url=IA_DB,
-                        embedder=OllamaEmbedder(id=IA_MODEL, dimensions=3072),
+                        embedder=GeminiEmbedder(api_key=ia_token),
                     ),
                 )
             )

@@ -1,25 +1,45 @@
-from tools.kit.obtener_datos_de_factura import obtener_datos_de_factura
+from tools.services.toolkit_factory import ToolkitFactory
 
 
 class ToolkitService:
+    """
+    Servicio principal para gestionar herramientas de agentes.
+
+    Utiliza ToolkitFactory para obtener herramientas registradas de manera dinámica.
+    """
+
     @staticmethod
     def get_toolkits(tools: list[str] = None):
-        # Diccionario completo de herramientas disponibles
-        available_tools = {
-            "obtener_datos_de_factura": {
-                "function": obtener_datos_de_factura,
-                "description": "Obtiene los datos de una factura a partir de su URL.",
-            }
-        }
+        """
+        Obtiene herramientas usando el factory pattern.
 
-        # Si no se especifican tools, devolver todas las herramientas
-        if tools is None:
-            return available_tools
+        Args:
+            tools: Lista de nombres de herramientas. Si es None, retorna todas.
 
-        # Filtrar solo las herramientas solicitadas
-        filtered_tools = {}
-        for tool_name in tools:
-            if tool_name in available_tools:
-                filtered_tools[tool_name] = available_tools[tool_name]["function"]
+        Returns:
+            dict: Diccionario con herramientas solicitadas
+        """
+        return ToolkitFactory.get_tools(tools)
 
-        return filtered_tools
+    @staticmethod
+    def get_available_tools():
+        """
+        Obtiene información completa de todas las herramientas disponibles.
+
+        Returns:
+            dict: Información completa de herramientas con descripción y categoría
+        """
+        return ToolkitFactory.get_available_tools()
+
+    @staticmethod
+    def get_tools_by_category(category: str):
+        """
+        Obtiene herramientas de una categoría específica.
+
+        Args:
+            category: Nombre de la categoría
+
+        Returns:
+            dict: Herramientas de la categoría especificada
+        """
+        return ToolkitFactory.get_tools_by_category(category)

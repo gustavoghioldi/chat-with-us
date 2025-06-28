@@ -22,13 +22,16 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     # apps
+    "main",  # Para comandos de management
     "analysis",
     "agents",
-    "knowledge",
+    "api",
     "chats",
+    "crews",
+    "documents",
+    "knowledge",
     "tenants",
     "tools",
-    "documents",
 ]
 
 MIDDLEWARE = [
@@ -104,9 +107,9 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # AI Configuration
-IA_MODEL = os.environ.get("IA_MODEL", "llama3.2:3b")
+IA_MODEL = os.environ.get("IA_MODEL", "gemini-2.0-flash-lite")
 IA_DB = os.environ.get("IA_DB", "postgresql+psycopg://ai:ai@localhost:5532/ai")
-IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "llama3.2:3b")
+IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "gemini-2.0-flash-lite")
 
 # Celery Configuration
 CELERY_ACCEPT_CONTENT = ["json"]
