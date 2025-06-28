@@ -1,4 +1,5 @@
 from agno.embedder.google import GeminiEmbedder
+from agno.embedder.ollama import OllamaEmbedder
 from agno.knowledge.combined import CombinedKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
@@ -79,7 +80,8 @@ class DocumentKnowledgeBaseService:
             vector_db=PgVector(
                 table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
-                embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
+                embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
+                # embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
             ),
         )
 
@@ -91,4 +93,4 @@ class DocumentKnowledgeBaseService:
             knowledge.recreate = False
             knowledge.save()
 
-        return knowledge_sources
+        return combined_knowledge
