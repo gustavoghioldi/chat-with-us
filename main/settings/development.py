@@ -40,7 +40,59 @@ CELERY_RESULT_BACKEND = os.environ.get(
 # Email configuration for development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# Debug toolbar configuration
-INSTALLED_APPS += ["debug_toolbar"]  # noqa: F405
-MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")  # noqa: F405
-INTERNAL_IPS = ["127.0.0.1"]
+# Logging configuration for development
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "agents": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+        },
+    },
+}
+
+# Development tools configuration (sin debug toolbar)
+if DEBUG:
+    # Mostrar SQL queries en consola (alternativa a debug toolbar)
+    LOGGING["loggers"]["django.db.backends"] = {
+        "level": "DEBUG",
+        "handlers": ["console"],
+        "propagate": False,
+    }
+
+    # Configuración para desarrollo más detallada
+    LOGGING["loggers"]["agents.services"] = {
+        "level": "DEBUG",
+        "handlers": ["console"],
+        "propagate": False,
+    }
+
+    # Configuración adicional para desarrollo
+    ALLOWED_HOSTS += ["*"]  # Permitir cualquier host en desarrollo
+
+    # Configuración de archivos estáticos mejorada
+    STATICFILES_DIRS = [
+        BASE_DIR / "static",  # noqa: F405
+    ]

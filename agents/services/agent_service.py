@@ -2,15 +2,12 @@ import logging
 import re
 from textwrap import dedent
 
-from agno.agent import Agent
-from agno.models.ollama import Ollama
-
 from agents.models import AgentModel
+from agents.services.agent_service_configure import AgentServiceConfigure
 from agents.services.agent_storage_service import AgentSessionService
 from knowledge.services.document_knowledge_base_service import (
     DocumentKnowledgeBaseService,
 )
-from main.settings import IA_MODEL
 from tools.kit.obtener_datos_de_factura import *
 
 logger = logging.getLogger(__name__)
@@ -26,39 +23,8 @@ class AgentService:
         except AgentModel.DoesNotExist:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
         # toolkit = [obtener_datos_de_factura]
-        knowledge_service = DocumentKnowledgeBaseService(agent_name)
-        knowledge = knowledge_service.get_knowledge_base()
-        storage_service = AgentSessionService()
-
-        self.__agent = Agent(
-            name=self.__agent_model.name,
-            model=Ollama(
-                id=IA_MODEL,
-                options={
-                    "max_tokens": self.__agent_model.max_tokens,  # Número específico de tokens a predecir
-                    "temperature": self.__agent_model.temperature,  # Controla la aleatoriedad de las respuestas (0.0 a 1.0)
-                    "top_p": self.__agent_model.top_p,  # Controla la diversidad de las respuestas (0.0 a 1.0)
-                },
-            ),
-            instructions=dedent(
-                f"""
-                {self.__agent_model.instructions}
-                """
-            ),
-            description=dedent(
-                f"""
-                {self.__agent_model.description or "Agente creado para responder preguntas y realizar tareas específicas."}
-                """
-            ),
-            # tools=toolkit,
-            # show_tool_calls=True,
-            knowledge=knowledge,
-            search_knowledge=True if knowledge else False,
-            storage=storage_service.get_storage(),
-            add_history_to_messages=True,
-            num_history_responses=3,
-            debug_mode=True,
-        )
+        agent_service_configure = AgentServiceConfigure(self.__agent_model)
+        self.__agent = agent_service_configure.configure()
 
     def send_message(
         self, message: str, session_id: str, clean_respose: bool = True

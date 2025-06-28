@@ -1,13 +1,10 @@
+from agno.embedder.google import GeminiEmbedder
 from agno.embedder.ollama import OllamaEmbedder
 from agno.knowledge.combined import CombinedKnowledgeBase
 from agno.vectordb.pgvector import PgVector
 
 from agents.models import AgentModel
-from knowledge.services.csv_document_service import CSVDocumentService
-from knowledge.services.docx_document_service import DocxDocumentService
-from knowledge.services.json_document_service import JSONDocumentService
-from knowledge.services.markdown_document_service import MarkdownDocumentService
-from knowledge.services.pdf_document_service import PDFDocumentService
+from knowledge.services.document_service_factory import DocumentServiceFactory
 from knowledge.services.plain_document_service import PlainDocumentService
 from knowledge.services.website_service import WebsiteService
 from main.settings import IA_DB, IA_MODEL_EMBEDDING
@@ -28,14 +25,10 @@ class DocumentKnowledgeBaseService:
         # Verificar si algún modelo de conocimiento necesita recreación
         recreate = self.agent_model.knoledge_text_models.filter(recreate=True).exists()
 
-        # Clasificar los documentos por tipo
+        # Agrupar archivos por extensión para usar el factory
+        files_by_extension = {}
         plain_texts = []
         website_urls = []
-        csv_files = []
-        json_files = []
-        pdf_files = []
-        docx_files = []
-        markdown_files = []
 
         # Categorizar los modelos de conocimiento
         for knowledge in self.agent_model.knoledge_text_models.all():
@@ -51,64 +44,35 @@ class DocumentKnowledgeBaseService:
                 file_path = knowledge.document.file.path
                 file_ext = knowledge.document.file.name.split(".")[-1].lower()
 
-                if file_ext == "csv":
-                    csv_files.append(file_path)
-                elif file_ext == "json":
-                    json_files.append(file_path)
-                elif file_ext == "pdf":
-                    pdf_files.append(file_path)
-                elif file_ext in ["doc", "docx"]:
-                    docx_files.append(file_path)
-                elif file_ext in ["md", "markdown"]:
-                    markdown_files.append(file_path)
+                # Agrupar archivos por extensión
+                if file_ext not in files_by_extension:
+                    files_by_extension[file_ext] = []
+                files_by_extension[file_ext].append(file_path)
 
-        # Obtener bases de conocimiento para cada tipo de documento
+        # Obtener bases de conocimiento usando factories y servicios específicos
         knowledge_sources = []
 
-        # Documentos de texto plano
+        # Documentos de texto plano (usando servicio específico)
         if plain_texts:
             knowledge_base_plain = PlainDocumentService.get_knowledge_base(
                 self.agent_model, plain_texts
             )
             knowledge_sources.append(knowledge_base_plain)
 
-        # Sitios web
+        # Sitios web (usando servicio específico)
         if website_urls:
             knowledge_base_web = WebsiteService.get_knowledge_base(
-                self.agent_model, website_urls
+                self.agent_model, website_urls, self.agent_model.tenant.ai_token
             )
             if knowledge_base_web:  # WebsiteService puede devolver None si no hay URLs
                 knowledge_sources.append(knowledge_base_web)
 
-        # Archivos CSV
-        csv_knowledge_collection = CSVDocumentService.get_knowledge_base(
-            self.agent_model, csv_files
-        )
-        knowledge_sources.extend(csv_knowledge_collection)
-
-        # Archivos JSON
-        json_knowledge_collection = JSONDocumentService.get_knowledge_base(
-            self.agent_model, json_files
-        )
-        knowledge_sources.extend(json_knowledge_collection)
-
-        # Archivos PDF
-        pdf_knowledge_collection = PDFDocumentService.get_knowledge_base(
-            self.agent_model, pdf_files
-        )
-        knowledge_sources.extend(pdf_knowledge_collection)
-
-        # Archivos DOCX
-        docx_knowledge_collection = DocxDocumentService.get_knowledge_base(
-            self.agent_model, docx_files
-        )
-        knowledge_sources.extend(docx_knowledge_collection)
-
-        # Archivos Markdown
-        markdown_knowledge_collection = MarkdownDocumentService.get_knowledge_base(
-            self.agent_model, markdown_files
-        )
-        knowledge_sources.extend(markdown_knowledge_collection)
+        # Procesar archivos usando el DocumentServiceFactory
+        if files_by_extension:
+            document_knowledge_sources = DocumentServiceFactory.process_files_by_type(
+                self.agent_model, files_by_extension
+            )
+            knowledge_sources.extend(document_knowledge_sources)
 
         # Combinar todas las bases de conocimiento
         combined_knowledge = CombinedKnowledgeBase(
@@ -117,6 +81,7 @@ class DocumentKnowledgeBaseService:
                 table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
                 embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
+                # embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
             ),
         )
 

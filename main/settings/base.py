@@ -22,13 +22,16 @@ INSTALLED_APPS = [
     "django_filters",
     "corsheaders",
     # apps
+    "main",  # Para comandos de management
     "analysis",
     "agents",
-    "knowledge",
+    "api",
     "chats",
+    "crews",
+    "documents",
+    "knowledge",
     "tenants",
     "tools",
-    "documents",
 ]
 
 MIDDLEWARE = [
