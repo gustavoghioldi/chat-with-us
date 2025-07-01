@@ -22,6 +22,7 @@ class SentimentMessageService:
         structured_output_agent = Agent(
             model=Ollama(id=IA_MODEL),
             description="analizas los sentimientos de las frases enviadas por el usuario",
+            instructions=f"",
             response_model=SentimientScript,
         )
 

@@ -26,7 +26,7 @@ class GeminiConfigurator(BaseAgentConfigurator):
 
         # Configurar el modelo Gemini usando agno.models.google.Gemini
         model = Gemini(
-            id=self.agent_model.agent_model_id or "gemini-pro",
+            id=self.agent_model.agent_model_id,
             api_key=self.agent_model.tenant.ai_token,
             # max_tokens=self.agent_model.max_tokens,
             temperature=self.agent_model.temperature,
