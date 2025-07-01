@@ -80,13 +80,20 @@ class DocumentKnowledgeBaseService:
             vector_db=PgVector(
                 table_name=f"ia_combined_documents_{self.agent_model.name}",
                 db_url=IA_DB,
-                embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
-                # embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
+                # embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
+                embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
             ),
+            num_documents=1,
         )
 
         # Cargar la base de conocimiento
-        combined_knowledge.load(recreate=recreate)
+        if (
+            not combined_knowledge.vector_db.search(
+                "ia_combined_documents_GeminiTestAgent", limit=1
+            )
+            or recreate
+        ):
+            combined_knowledge.load(recreate=recreate)
 
         # Usa este código para que se emitan las señales:
         for knowledge in self.agent_model.knoledge_text_models.filter(recreate=True):

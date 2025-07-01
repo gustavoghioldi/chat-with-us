@@ -11,9 +11,8 @@ def handle_new_chat_text(
     Handler para nuevos mensajes de chat.
     """
     if created:
-        pass
-        # run_sentiment_analysis(
-        #     message=instance.request,
-        #     session_id=instance.chat.session_id,
-        #     timestamp=instance.created_at,
-        # )
+        run_sentiment_analysis.delay(
+            message=instance.request,
+            session_id=instance.chat.session_id,
+            timestamp=instance.created_at,
+        )

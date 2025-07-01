@@ -96,3 +96,6 @@ if DEBUG:
     STATICFILES_DIRS = [
         BASE_DIR / "static",  # noqa: F405
     ]
+
+CELERY_TASK_ALWAYS_EAGER = True  # fuerza ejecución inmediata
+CELERY_TASK_EAGER_PROPAGATES = True  # que reviente aquí la excepción si algo falla
