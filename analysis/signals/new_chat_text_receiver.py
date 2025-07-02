@@ -15,4 +15,5 @@ def handle_new_chat_text(
             message=instance.request,
             session_id=instance.chat.session_id,
             timestamp=instance.created_at,
+            sentiment_model=instance.chat.agent.analize_sentiment_id,
         )

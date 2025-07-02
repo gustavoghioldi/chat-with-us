@@ -1,4 +1,3 @@
-from chats.models import ContentChatModel
 from main.models import AppModel, models
 
 

@@ -18,7 +18,7 @@ class SentimientScript(BaseModel):
 
 class SentimentMessageService:
     @staticmethod
-    def run(text) -> SentimientScript:
+    def run(text, context) -> SentimientScript:
         structured_output_agent = Agent(
             model=Ollama(id=IA_MODEL),
             description="Eres un analista de los sentimientos de las frases enviadas por el usuario",
@@ -26,6 +26,7 @@ class SentimentMessageService:
                 "Analiza el sentimiento del mensaje del usuario y clasificalo como POSITIVO, NEGATIVO o NEUTRO. "
                 "Proporciona una justificación para la clasificación."
             ),
+            context=context,
             response_model=SentimientScript,
         )
 

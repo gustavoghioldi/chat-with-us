@@ -49,6 +49,16 @@ class AgentModel(AppModel):
         default=None,
     )
 
+    analize_sentiment = models.ForeignKey(
+        "analysis.SentimentAgentModel",
+        default=None,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="agents",
+        help_text="Agente de análisis de sentimientos asociado al agente",
+    )
+
     def __str__(self):
         return self.name
 

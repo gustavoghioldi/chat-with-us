@@ -116,6 +116,7 @@ class AgentAdmin(admin.ModelAdmin):
                     "description",
                     "agent_model_id",
                     "tenant",
+                    "analize_sentiment",
                 ),
                 "description": "Configuración básica del agente de IA",
             },
