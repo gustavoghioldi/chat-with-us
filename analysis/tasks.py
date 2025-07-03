@@ -12,12 +12,12 @@ def run_sentiment_analysis(message, session_id, timestamp, sentiment_model=None)
 
     if not sentiment_model:
         SentimentChatModel.objects.create(content_chat=content)
-    SentimentAgentModel.objects.get(id=sentiment_model)
+    sentiment_model = SentimentAgentModel.objects.get(id=sentiment_model)
     context = f"""
     ##Palabas de Ejemplo:
-    Palabras NEGATIVAS: {sentiment_model.negatives}
-    Palabras POSITIVAS: {sentiment_model.positives}
-    Palabras NEUTRAS: {sentiment_model.neutrals}
+    Palabras NEGATIVAS: {sentiment_model.negative_tokens}
+    Palabras POSITIVAS: {sentiment_model.positive_tokens}
+    Palabras NEUTRAS: {sentiment_model.negative_tokens}
     """
     sent = SentimentMessageService.run(text=message, context=context)
     SentimentChatModel.objects.create(
