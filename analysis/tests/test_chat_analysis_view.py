@@ -1,6 +1,12 @@
+"""
+Test unitarios para ChatAnalysisView
+
+Tests comprehensivos para la vista de análisis de chat migrada desde api a analysis.
+"""
+
 import json
 import time
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -8,307 +14,322 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from analysis.models.sentiment_agents_model import SentimentAgentModel
-from analysis.services import sentimentChatScript
+from analysis.views.chat_analysis_view import ChatAnalysisView
 from tenants.models import TenantModel
 
 
 class ChatAnalysisViewTestCase(TestCase):
-    """Test case para ChatAnalysisView"""
+    """Test cases para ChatAnalysisView"""
 
     def setUp(self):
         """Configuración inicial para cada test"""
         self.client = APIClient()
+        self.url = reverse("analysis:chat-analysis")
 
         # Crear tenant de prueba
         self.tenant = TenantModel.objects.create(
-            name="Test Tenant",
-            description="Tenant de prueba para tests",
-            model="ollama",
+            name="Test Tenant", description="Tenant para pruebas", model="ollama"
         )
 
         # Crear agente de sentimiento de prueba
         self.sentiment_agent = SentimentAgentModel.objects.create(
             name="test_analyzer",
             description="Analizador de prueba",
-            positive_tokens="excelente, bueno, fantástico",
-            negative_tokens="malo, terrible, horrible",
-            neutral_tokens="normal, regular, ok",
+            positive_tokens="excelente,bueno,fantástico",
+            negative_tokens="malo,terrible,horrible",
+            neutral_tokens="normal,regular,aceptable",
             tenant=self.tenant,
         )
 
-        # URL del endpoint
-        self.url = reverse("analysis:chat-analysis")
-
         # Datos de prueba válidos
-        self.valid_payload = {
-            "chat": "Este es un texto de prueba para analizar",
+        self.valid_data = {
+            "chat": "Este es un chat de prueba muy positivo",
             "analyzer_name": "test_analyzer",
         }
 
-        # Mock del resultado del análisis
-        self.mock_analysis_result = sentimentChatScript(
-            sentimient="POSITIVE",
-            cause="El texto contiene palabras positivas",
-            log="Analizado 35 caracteres de texto, sentimiento detectado: POSITIVO",
+        # Mock del resultado del servicio
+        self.mock_service_result = Mock()
+        self.mock_service_result.sentimient = "POSITIVE"
+        self.mock_service_result.cause = "El chat contiene palabras positivas"
+        self.mock_service_result.log = (
+            "Analizado 35 caracteres de texto, sentimiento detectado: POSITIVE"
         )
 
-    def test_chat_analysis_success(self):
-        """Test: Análisis exitoso de chat"""
-        with patch("analysis.services.SentimentChatService.run") as mock_service:
-            mock_service.return_value = self.mock_analysis_result
+    @patch("analysis.views.chat_analysis_view.SentimentChatService.run")
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_success(self, mock_permission, mock_service):
+        """Test: Flujo exitoso de análisis de sentimientos"""
+        # Configurar mocks
+        mock_permission.return_value = True
+        mock_service.return_value = self.mock_service_result
 
-            with patch(
-                "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-            ) as mock_permission:
-                mock_permission.return_value = True
+        # Realizar solicitud
+        response = self.client.post(self.url, self.valid_data, format="json")
 
-                response = self.client.post(
-                    self.url,
-                    data=json.dumps(self.valid_payload),
-                    content_type="application/json",
-                )
+        # Verificar respuesta
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
-                self.assertEqual(response.data["sentimient"], "POSITIVE")
-                self.assertEqual(
-                    response.data["cause"], "El texto contiene palabras positivas"
-                )
-                self.assertIn("log", response.data)
-                self.assertIn("timestamp", response.data)
+        response_data = response.json()
+        self.assertIn("sentimient", response_data)
+        self.assertIn("cause", response_data)
+        self.assertIn("log", response_data)
+        self.assertIn("timestamp", response_data)
 
-    def test_chat_analysis_invalid_data(self):
-        """Test: Datos de entrada inválidos"""
-        invalid_payload = {"chat": "", "analyzer_name": "test_analyzer"}  # Chat vacío
+        # Verificar valores específicos
+        self.assertEqual(response_data["sentimient"], "POSITIVE")
+        self.assertEqual(response_data["cause"], "El chat contiene palabras positivas")
+        self.assertIsInstance(response_data["timestamp"], str)
 
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        # Verificar que el servicio fue llamado
+        mock_service.assert_called_once_with(
+            text=self.valid_data["chat"], analyzer_name=self.sentiment_agent.name
+        )
 
-            response = self.client.post(
-                self.url,
-                data=json.dumps(invalid_payload),
-                content_type="application/json",
-            )
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_invalid_data(self, mock_permission):
+        """Test: Manejo de datos de entrada inválidos"""
+        mock_permission.return_value = True
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertIn("error", response.data)
-            self.assertEqual(response.data["error"], "Datos de solicitud inválidos")
+        invalid_data = {"chat": "", "analyzer_name": "test_analyzer"}  # Chat vacío
 
-    def test_chat_analysis_missing_analyzer_name(self):
-        """Test: Analyzer name faltante"""
-        invalid_payload = {
+        response = self.client.post(self.url, invalid_data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
+        self.assertIn("details", response_data)
+
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_missing_analyzer_name(self, mock_permission):
+        """Test: Manejo cuando falta el campo analyzer_name"""
+        mock_permission.return_value = True
+
+        invalid_data = {
             "chat": "Texto de prueba"
-            # analyzer_name faltante
+            # Falta analyzer_name
         }
 
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        response = self.client.post(self.url, invalid_data, format="json")
 
-            response = self.client.post(
-                self.url,
-                data=json.dumps(invalid_payload),
-                content_type="application/json",
-            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
+        self.assertIn("details", response_data)
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertIn("error", response.data)
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_nonexistent_analyzer(self, mock_permission):
+        """Test: Comportamiento con analizador inexistente"""
+        mock_permission.return_value = True
 
-    def test_chat_analysis_nonexistent_analyzer(self):
-        """Test: Analizador no existente"""
-        invalid_payload = {
+        invalid_data = {
             "chat": "Texto de prueba",
-            "analyzer_name": "nonexistent_analyzer",
+            "analyzer_name": "analyzer_inexistente",
         }
 
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        response = self.client.post(self.url, invalid_data, format="json")
 
-            response = self.client.post(
-                self.url,
-                data=json.dumps(invalid_payload),
-                content_type="application/json",
-            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertIn("error", response.data)
-
-    def test_chat_analysis_service_error(self):
+    @patch("analysis.views.chat_analysis_view.SentimentChatService.run")
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_service_error(self, mock_permission, mock_service):
         """Test: Error en el servicio de análisis"""
-        with patch("analysis.services.SentimentChatService.run") as mock_service:
-            mock_service.side_effect = Exception("Error en el servicio")
+        mock_permission.return_value = True
+        mock_service.side_effect = Exception("Error en el servicio")
 
-            with patch(
-                "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-            ) as mock_permission:
-                mock_permission.return_value = True
+        response = self.client.post(self.url, self.valid_data, format="json")
 
-                response = self.client.post(
-                    self.url,
-                    data=json.dumps(self.valid_payload),
-                    content_type="application/json",
-                )
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        response_data = response.json()
+        self.assertIn("error", response_data)
+        self.assertEqual(response_data["error"], "Error interno del servidor")
 
-                self.assertEqual(
-                    response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-                self.assertEqual(response.data["error"], "Error interno del servidor")
+    @patch("analysis.views.chat_analysis_view.SentimentChatService.run")
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_different_sentiments(self, mock_permission, mock_service):
+        """Test: Respuestas para diferentes tipos de sentimientos"""
+        mock_permission.return_value = True
 
-    def test_chat_analysis_different_sentiments(self):
-        """Test: Diferentes tipos de sentimientos"""
         sentiments = ["POSITIVE", "NEGATIVE", "NEUTRAL"]
 
         for sentiment in sentiments:
             with self.subTest(sentiment=sentiment):
-                mock_result = sentimentChatScript(
-                    sentimient=sentiment,
-                    cause=f"El texto es {sentiment.lower()}",
-                    log=f"Sentimiento detectado: {sentiment}",
-                )
+                # Configurar mock para cada sentimiento
+                mock_result = Mock()
+                mock_result.sentimient = sentiment
+                mock_result.cause = f"Análisis de sentimiento {sentiment.lower()}"
+                mock_result.log = f"Detectado sentimiento {sentiment}"
+                mock_service.return_value = mock_result
 
-                with patch(
-                    "analysis.services.SentimentChatService.run"
-                ) as mock_service:
-                    mock_service.return_value = mock_result
+                response = self.client.post(self.url, self.valid_data, format="json")
 
-                    with patch(
-                        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-                    ) as mock_permission:
-                        mock_permission.return_value = True
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                response_data = response.json()
+                self.assertEqual(response_data["sentimient"], sentiment)
 
-                        response = self.client.post(
-                            self.url,
-                            data=json.dumps(self.valid_payload),
-                            content_type="application/json",
-                        )
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_empty_chat_text(self, mock_permission):
+        """Test: Manejo de texto con solo espacios en blanco"""
+        mock_permission.return_value = True
 
-                        self.assertEqual(response.status_code, status.HTTP_200_OK)
-                        self.assertEqual(response.data["sentimient"], sentiment)
-
-    def test_chat_analysis_empty_chat_text(self):
-        """Test: Texto de chat vacío"""
-        empty_payload = {
+        invalid_data = {
             "chat": "   ",  # Solo espacios
             "analyzer_name": "test_analyzer",
         }
 
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        response = self.client.post(self.url, invalid_data, format="json")
 
-            response = self.client.post(
-                self.url,
-                data=json.dumps(empty_payload),
-                content_type="application/json",
-            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertIn("error", response.data)
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_long_text(self, mock_permission):
+        """Test: Validación de máximo de caracteres"""
+        mock_permission.return_value = True
 
-    def test_chat_analysis_long_text(self):
-        """Test: Texto muy largo"""
-        long_text = "a" * 6000  # Más de 5000 caracteres
-        long_payload = {"chat": long_text, "analyzer_name": "test_analyzer"}
+        # Texto que excede los 5000 caracteres
+        long_text = "A" * 5001
+        invalid_data = {"chat": long_text, "analyzer_name": "test_analyzer"}
 
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        response = self.client.post(self.url, invalid_data, format="json")
 
-            response = self.client.post(
-                self.url, data=json.dumps(long_payload), content_type="application/json"
-            )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-            self.assertIn("error", response.data)
-
-    def test_chat_analysis_response_serialization_error(self):
+    @patch("analysis.views.chat_analysis_view.SentimentChatService.run")
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_response_serialization_error(
+        self, mock_permission, mock_service
+    ):
         """Test: Error en serialización de respuesta"""
-        mock_result = MagicMock()
+        mock_permission.return_value = True
+
+        # Configurar mock con sentimiento inválido
+        mock_result = Mock()
         mock_result.sentimient = "INVALID_SENTIMENT"  # Sentimiento inválido
-        mock_result.cause = "Causa de prueba"
-        mock_result.log = "Log de prueba"
+        mock_result.cause = "Test cause"
+        mock_result.log = "Test log"
+        mock_service.return_value = mock_result
 
-        with patch("analysis.services.SentimentChatService.run") as mock_service:
-            mock_service.return_value = mock_result
+        response = self.client.post(self.url, self.valid_data, format="json")
 
-            with patch(
-                "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-            ) as mock_permission:
-                mock_permission.return_value = True
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
 
-                response = self.client.post(
-                    self.url,
-                    data=json.dumps(self.valid_payload),
-                    content_type="application/json",
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_method_not_allowed(self, mock_permission):
+        """Test: Solo el método POST está permitido"""
+        mock_permission.return_value = True
+
+        # Probar métodos no permitidos
+        methods = ["GET", "PUT", "DELETE", "PATCH"]
+
+        for method in methods:
+            with self.subTest(method=method):
+                if method == "GET":
+                    response = self.client.get(self.url)
+                elif method == "PUT":
+                    response = self.client.put(self.url, self.valid_data, format="json")
+                elif method == "DELETE":
+                    response = self.client.delete(self.url)
+                elif method == "PATCH":
+                    response = self.client.patch(
+                        self.url, self.valid_data, format="json"
+                    )
+
+                self.assertEqual(
+                    response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED
                 )
 
-                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-                self.assertIn("error", response.data)
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_validates_json_format(self, mock_permission):
+        """Test: Validación de formato JSON"""
+        mock_permission.return_value = True
 
-    def test_chat_analysis_method_not_allowed(self):
-        """Test: Método HTTP no permitido"""
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        # Enviar datos malformados
+        response = self.client.post(
+            self.url,
+            data='{"chat": "test", "analyzer_name": "test_analyzer"',  # JSON malformado
+            content_type="application/json",
+        )
 
-            response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response_data = response.json()
+        self.assertIn("error", response_data)
 
-            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+    @patch("analysis.views.chat_analysis_view.SentimentChatService.run")
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_timestamp_format(self, mock_permission, mock_service):
+        """Test: Verificación del formato correcto del timestamp"""
+        mock_permission.return_value = True
+        mock_service.return_value = self.mock_service_result
 
-    def test_chat_analysis_validates_json_format(self):
-        """Test: Validación del formato JSON"""
-        with patch(
-            "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-        ) as mock_permission:
-            mock_permission.return_value = True
+        # Capturar tiempo antes de la solicitud
+        before_time = int(time.time())
 
-            response = self.client.post(
-                self.url, data="invalid json", content_type="application/json"
-            )
+        response = self.client.post(self.url, self.valid_data, format="json")
 
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        # Capturar tiempo después de la solicitud
+        after_time = int(time.time())
 
-    def test_chat_analysis_timestamp_format(self):
-        """Test: Formato del timestamp en la respuesta"""
-        with patch("analysis.services.SentimentChatService.run") as mock_service:
-            mock_service.return_value = self.mock_analysis_result
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_data = response.json()
 
-            with patch(
-                "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
-            ) as mock_permission:
-                mock_permission.return_value = True
+        # Verificar que el timestamp es un string
+        self.assertIsInstance(response_data["timestamp"], str)
 
-                response = self.client.post(
-                    self.url,
-                    data=json.dumps(self.valid_payload),
-                    content_type="application/json",
-                )
+        # Verificar que el timestamp está en el rango temporal correcto
+        timestamp = int(response_data["timestamp"])
+        self.assertGreaterEqual(timestamp, before_time)
+        self.assertLessEqual(timestamp, after_time)
 
-                self.assertEqual(response.status_code, status.HTTP_200_OK)
+    @patch(
+        "api.permissions_classes.is_tenant_authenticated.IsTenantAuthenticated.has_permission"
+    )
+    def test_chat_analysis_unauthorized_access(self, mock_permission):
+        """Test: Acceso no autorizado"""
+        mock_permission.return_value = False
 
-                # Verificar que timestamp es un string que representa un número
-                timestamp = response.data["timestamp"]
-                self.assertIsInstance(timestamp, str)
-                self.assertTrue(timestamp.isdigit())
+        response = self.client.post(self.url, self.valid_data, format="json")
 
-                # Verificar que es un timestamp válido (no muy antiguo ni muy futuro)
-                timestamp_int = int(timestamp)
-                current_time = int(time.time())
-                self.assertGreater(
-                    timestamp_int, current_time - 60
-                )  # No más de 1 minuto atrás
-                self.assertLess(
-                    timestamp_int, current_time + 60
-                )  # No más de 1 minuto adelante
+        # El comportamiento exacto depende de la implementación de IsTenantAuthenticated
+        # pero típicamente sería 401 o 403
+        self.assertIn(
+            response.status_code,
+            [status.HTTP_401_UNAUTHORIZED, status.HTTP_403_FORBIDDEN],
+        )
 
     def tearDown(self):
         """Limpieza después de cada test"""
+        # Limpiar datos de prueba
         SentimentAgentModel.objects.all().delete()
         TenantModel.objects.all().delete()
