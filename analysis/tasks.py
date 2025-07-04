@@ -14,11 +14,11 @@ def run_sentiment_analysis(message, session_id, timestamp, sentiment_model=None)
         SentimentChatModel.objects.create(content_chat=content)
     sentiment_model = SentimentAgentModel.objects.get(id=sentiment_model)
     context = f"""
-    ##Palabas de Ejemplo:
-    Palabras NEGATIVAS: {sentiment_model.negative_tokens}
-    Palabras POSITIVAS: {sentiment_model.positive_tokens}
-    Palabras NEUTRAS: {sentiment_model.negative_tokens}
-    """
+        ##Palabas de Ejemplo:
+        Frases de sentimientos NEGATIVAS: {sentiment_model.negative_tokens}
+        Frases de sentimientos POSITIVAS: {sentiment_model.positive_tokens}
+        Frases de sentimientos NEUTRAS: {sentiment_model.negative_tokens}
+        """
     sent = SentimentMessageService.run(text=message, context=context)
     SentimentChatModel.objects.create(
         content_chat=content, actitude=sent.sentimient, cause=sent.cause
