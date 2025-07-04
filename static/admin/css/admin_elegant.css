@@ -568,3 +568,8 @@ h1 {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--dark-yellow);
 }
+
+
+select {
+    height: 3rem;
+}

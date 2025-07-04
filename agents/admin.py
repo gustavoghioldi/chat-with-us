@@ -104,7 +104,6 @@ class AgentAdmin(admin.ModelAdmin):
     )
     ordering = ("-created_at",)
     filter_horizontal = ("knoledge_text_models", "api_call_models")
-    # inlines = [KnowledgeInline]
 
     fieldsets = (
         (
@@ -116,7 +115,6 @@ class AgentAdmin(admin.ModelAdmin):
                     "description",
                     "agent_model_id",
                     "tenant",
-                    "analize_sentiment",
                 ),
                 "description": "Configuración básica del agente de IA",
             },
