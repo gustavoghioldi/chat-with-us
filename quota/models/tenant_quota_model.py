@@ -12,6 +12,7 @@ class TenantQuotaModel(AppModel):
     plan = models.ForeignKey(TokenPlanModel, on_delete=models.PROTECT)
     tokens_used = models.PositiveIntegerField(default=0)
     last_reset = models.DateField(auto_now_add=True)
+    plan_exceeded = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Tenant Quota"

@@ -1,3 +1,4 @@
+from quota.enums.transaction_messages import SystemMessages
 from quota.models.tenant_quota_model import TenantQuotaModel
 from quota.models.token_ledger_model import TokenLedgerModel
 from quota.enums.transactions_type import TransactionType
@@ -16,13 +17,14 @@ class QuotaService:
             tenant_quota = TenantQuotaModel.objects.select_related("plan").get(tenant=tenant)
         except TenantQuotaModel.DoesNotExist:
             raise Exception("No quota plan assigned to this tenant.")
-
+        
+        if getattr(tenant_quota, "is_blocked", False):
+            return SystemMessages.PLAN_EXCEEDED.value, session_id
+        
         plan_limit = tenant_quota.plan.total_amount
 
-        # Ejecutar el mensaje y obtener la respuesta y session_id
         text, response_session_id = agent.send_message(prompt, session_id)
 
-        # Obtener tokens usados (ajusta según tu implementación real)
         metrics = getattr(agent._AgentService__agent, "run_response", None)
         if metrics and hasattr(metrics, "metrics"):
             total_tokens = metrics.metrics.get("total_tokens", [0])
@@ -41,8 +43,10 @@ class QuotaService:
             direction=TransactionDirectionType.OUT,
         )
 
+        
         if plan_limit is not None and tenant_quota.tokens_used > plan_limit:
-            #TODO pensar a ver que onda como flaggear al tenant
-            pass
+            tenant_quota.plan_exceeded = True
+            tenant_quota.save(update_fields=["plan_exceeded"])
+            text = SystemMessages.PLAN_EXCEEDED.value       
 
         return text, response_session_id
