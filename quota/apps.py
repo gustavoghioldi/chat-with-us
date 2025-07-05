@@ -7,4 +7,4 @@ class QuotaConfig(AppConfig):
 
     def ready(self):
         from quota import signals
-        from models import TenantQuota, TokenPlan
+        from quota.models import token_ledger_model, tenant_quota_model, token_plan_model

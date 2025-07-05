@@ -19,7 +19,7 @@ class TokenLedgerModel(AppModel):
     direction = models.CharField(
         choices=TransactionDirectionType.choices, max_length=3
     )
-    reason = models.CharField(max_length=255, blank=True, null=True)
+    metadata = models.JSONField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Token Ledger"
@@ -27,4 +27,4 @@ class TokenLedgerModel(AppModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.tenant} | {self.transaction_type} | {self.amount} | {self.created_at}"
+        return f"{self.tenant} | {self.transaction_type} | {self.total_amount} | {self.created_at}"
