@@ -2,6 +2,7 @@
 
 ## Descripción General
 La app `quota` administra y controla el uso de recursos por tenant, principalmente el consumo de tokens en interacciones con modelos de IA. Permite definir límites (quotas) mensuales o diarios registrar el uso real y aplicar políticas de restricción para cada tenant.
+Los tokens se resetean el primer dia de cada mes
 
 ## Funcionalidades Principales
 
@@ -10,6 +11,7 @@ La app `quota` administra y controla el uso de recursos por tenant, principalmen
 - Validación de quotas antes de procesar requests.
 - Soporte para diferentes periodos de cuota (mensual, diario, etc.).
 - Señales y servicios para extender el control a otros recursos (requests, almacenamiento, etc.).
+- Task encargada del reset de cada mes
 
 ## Estructura del Módulo
 
