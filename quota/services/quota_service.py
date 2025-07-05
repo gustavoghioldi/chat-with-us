@@ -18,7 +18,7 @@ class QuotaService:
         except TenantQuotaModel.DoesNotExist:
             raise Exception("No quota plan assigned to this tenant.")
         
-        if getattr(tenant_quota, "is_blocked", False):
+        if getattr(tenant_quota, "plan_exceeded", False):
             return SystemMessages.PLAN_EXCEEDED.value, session_id
         
         plan_limit = tenant_quota.plan.total_amount
