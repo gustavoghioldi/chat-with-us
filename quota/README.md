@@ -52,4 +52,8 @@ Los tokens se resetean el primer dia de cada mes
 
 ---
 
-> Para más detalles sobre la configuración y extensión del módulo, consulta la documentación interna y los docstrings en el código fuente.
+TO DOs a resolver
+
+¿Varia el plan segun del agente?
+Creacion de API para visualizar los tokens restantes de un plan
+Generar un WEBHOOK para notificar cuando se excede el limite

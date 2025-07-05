@@ -27,4 +27,4 @@ class TokenLedgerModel(AppModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.tenant} | {self.transaction_type} | {self.total_amount} | {self.created_at}"
+        return f"{self.tenant} | {self.transaction_type} | {self.amount} | {self.created_at}"
