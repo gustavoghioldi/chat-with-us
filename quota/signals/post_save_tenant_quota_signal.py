@@ -18,3 +18,4 @@ def post_save_token_ledger_model_signal(sender, instance, **kwargs):
         if tenant_quota and getattr(tenant_quota, "plan_exceeded", False):
             tenant_quota.plan_exceeded = False
             tenant_quota.save(update_fields=["plan_exceeded"])
+            

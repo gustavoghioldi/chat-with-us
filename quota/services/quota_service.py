@@ -42,8 +42,15 @@ class QuotaService:
             total_remaining=plan_limit - tenant_quota.tokens_used if plan_limit is not None else None,
             direction=TransactionDirectionType.OUT,
         )
-
         
+        # Con el siguiente bloque se generan 2 variantes
+        # A) Si se comenta el siguiente condicional, al excederse EN el prompt el usuario recibe la respuesta igual
+        # B) Si no se comenta (como esta) si el usuario hace un prompt y en el camino se queda sin tokens, el prompt se bloquea
+        # Ejemplo: (B) le quedan 4 tokens y el prompt vale 5, le resta los 4 tokens y no le da la respuesta
+        # Pero en otro caso (A) si tiene 4 tokens y el prompt vale 55, le deja en 4 y le entrega la respuesta
+        # osea se le dieron 51 tokens de regalo 
+        # Basicamente todo depende de lo user-friendly que se decida
+
         if plan_limit is not None and tenant_quota.tokens_used > plan_limit:
             tenant_quota.plan_exceeded = True
             tenant_quota.save(update_fields=["plan_exceeded"])
