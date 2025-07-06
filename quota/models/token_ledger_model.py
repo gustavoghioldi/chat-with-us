@@ -22,8 +22,8 @@ class TokenLedgerModel(AppModel):
     metadata = models.JSONField(blank=True, null=True)
 
     class Meta:
-        verbose_name = "Token Ledger"
-        verbose_name_plural = "Token Ledgers"
+        verbose_name = "Token Transaction Ledger"
+        verbose_name_plural = "Token Transaction Ledgers"
         ordering = ["-created_at"]
 
     def __str__(self):

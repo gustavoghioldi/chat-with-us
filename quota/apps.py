@@ -17,3 +17,6 @@ class QuotaConfig(AppConfig):
             token_ledger_admin,
             token_plan_admin,
         )
+        from quota.signals import (
+            post_save_tenant_quota_signal,
+        )

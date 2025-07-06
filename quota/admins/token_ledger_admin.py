@@ -9,5 +9,4 @@ class TokenLedgerAdmin(admin.ModelAdmin):
     list_display = ("tenant", "transaction_type", "amount", "total_remaining", "direction", "created_at")
     list_filter = ("transaction_type", "direction", "tenant")
     search_fields = ("tenant__name",)
-    readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
