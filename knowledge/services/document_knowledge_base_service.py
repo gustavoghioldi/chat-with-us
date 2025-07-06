@@ -83,7 +83,6 @@ class DocumentKnowledgeBaseService:
                 # embedder=OllamaEmbedder(id=IA_MODEL_EMBEDDING, dimensions=3072),
                 embedder=GeminiEmbedder(api_key=self.agent_model.tenant.ai_token),
             ),
-            num_documents=1,
         )
 
         # Cargar la base de conocimiento

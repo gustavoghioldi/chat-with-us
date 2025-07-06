@@ -1,13 +1,8 @@
 import logging
 import re
-from textwrap import dedent
 
 from agents.models import AgentModel
-from agents.services.agent_service_configure import AgentServiceConfigure
-from agents.services.agent_storage_service import AgentSessionService
-from knowledge.services.document_knowledge_base_service import (
-    DocumentKnowledgeBaseService,
-)
+from agents.services.agent_factory_service import AgentFactoryService
 from tools.kit.obtener_datos_de_factura import *
 
 logger = logging.getLogger(__name__)
@@ -22,15 +17,19 @@ class AgentService:
             )
         except AgentModel.DoesNotExist:
             raise AgentModel.DoesNotExist(f"Agent {agent_name} not found")
-        # toolkit = [obtener_datos_de_factura]
-        agent_service_configure = AgentServiceConfigure(self.__agent_model)
-        self.__agent = agent_service_configure.configure()
+
+        agent_factory = AgentFactoryService(
+            agent_model=self.__agent_model,
+            session_id=session_id,
+            user_id=session_id,
+        )
+        self._agent = agent_factory.get_agent()
 
     def send_message(
         self, message: str, session_id: str, clean_respose: bool = True
     ) -> str:
         """Send a message to the agent and get a response."""
-        response = self.__agent.run(
+        response = self._agent.run(
             message, session_id=str(session_id), user_id=str(session_id)
         )
         if clean_respose:
