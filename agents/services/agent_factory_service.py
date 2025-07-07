@@ -56,8 +56,14 @@ class AgentFactoryService:
             table_name="agent_sessions", db_url=db_url, auto_upgrade_schema=True
         )
 
+        ai_model = model(
+            id=self._agent_model.agent_model_id,
+        )
+        if model != Ollama:
+            ai_model.api_key = self._agent_model.tenant.ai_token
+
         return Agent(
-            model=model(id=self._agent_model.agent_model_id),
+            model=ai_model,
             description=self._agent_model.description or "Agente de IA",
             instructions=self._agent_model.instructions,
             session_id=str(self._session_id),
