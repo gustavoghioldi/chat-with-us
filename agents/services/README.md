@@ -1,246 +1,217 @@
 # Servicios de Agentes
 
 ## Descripción General
-Este directorio contiene los servicios principales para la gestión y operación de agentes de IA. Proporciona una abstracción para diferentes proveedores de modelos de lenguaje (Ollama y Gemini) y maneja la configuración, creación y operaciones de agentes utilizando la librería `agno`.
+Este directorio contiene los servicios principales para la gestión y configuración de agentes de IA. Proporciona una abstracción para diferentes proveedores de modelos de lenguaje y maneja la configuración, almacenamiento y operaciones de agentes.
 
 ## Estructura de Archivos
 
 ### `agent_service.py`
-Servicio principal que actúa como interfaz de alto nivel para interactuar con agentes. Funcionalidades:
-- Inicialización de agentes por nombre desde la base de datos
-- Manejo de conversaciones y envío de mensajes
-- Procesamiento y limpieza de respuestas
-- Integración con `AgentFactoryService` para la creación de agentes
+Servicio principal para la gestión de agentes. Incluye:
+- Creación y configuración de agentes
+- Manejo de conversaciones
+- Integración con diferentes proveedores de IA
+- Gestión de contexto y memoria
 
 ```python
 from agents.services.agent_service import AgentService
 
 # Ejemplo de uso
-agent_service = AgentService(agent_name="mi_agente", session_id="session_123")
-response, session_id = agent_service.send_message(
+agent_service = AgentService()
+response = agent_service.generate_response(
+    agent_id="agent_123",
     message="Hola, ¿cómo puedo ayudarte?",
-    session_id="session_123"
+    context={"user_id": "user_456"}
 )
 ```
 
-**Métodos principales:**
-- `__init__(agent_name: str, session_id=None)`: Inicializa el servicio con un agente específico
-- `send_message(message: str, session_id: str, clean_response: bool = True)`: Envía un mensaje al agente
-- `get_agent_model()`: Obtiene el modelo de agente de la base de datos
-
-### `agent_factory_service.py`
-Factory service para la creación y configuración de agentes. Implementa el patrón Factory para crear instancias de agentes configuradas según el proveedor especificado. Funcionalidades:
-- Creación de agentes basados en modelos Ollama o Gemini
-- Configuración de memoria persistente con PostgreSQL
-- Integración con knowledge bases de documentos
-- Configuración de almacenamiento de sesiones
+### `agent_service_configure.py`
+Servicio para la configuración de agentes. Funcionalidades:
+- Configuración de parámetros de modelo
+- Validación de configuraciones
+- Actualización de configuraciones existentes
+- Gestión de templates y prompts
 
 ```python
-from agents.services.agent_factory_service import AgentFactoryService
+from agents.services.agent_service_configure import AgentServiceConfigure
+
+# Ejemplo de configuración
+configurator = AgentServiceConfigure()
+configurator.configure_agent(
+    agent_id="agent_123",
+    model_config={
+        "temperature": 0.7,
+        "max_tokens": 1000,
+        "provider": "openai"
+    }
+)
+```
+
+### `agent_storage_service.py`
+Servicio para el almacenamiento y recuperación de agentes. Incluye:
+- Persistencia de configuraciones
+- Caché de modelos
+- Manejo de metadatos
+- Integración con diferentes sistemas de almacenamiento
+
+```python
+from agents.services.agent_storage_service import AgentStorageService
 
 # Ejemplo de uso
-factory = AgentFactoryService(
-    agent_model=agent_model_instance,
-    session_id="session_123",
-    user_id="user_456"
-)
-agent = factory.get_agent()
+storage_service = AgentStorageService()
+agent_data = storage_service.get_agent_data("agent_123")
+storage_service.save_agent_data("agent_123", updated_data)
 ```
 
-**Métodos principales:**
-- `__init__(agent_model: AgentModel, session_id=None, user_id=None)`: Inicializa el factory
-- `get_agent() -> Agent`: Crea y retorna un agente configurado
-- `configure(model) -> Agent`: Configura un agente con el modelo especificado
-
-**Proveedores soportados:**
-- **Ollama**: Para modelos locales
-- **Gemini**: Para modelos de Google AI
-
-### `agent_memory_service.py`
-Servicio para la gestión de memoria de agentes (actualmente vacío, preparado para implementación futura).
-
-## Arquitectura del Sistema
-
-### Modelo de Datos
-El sistema utiliza los siguientes modelos principales:
-
-**AgentModel:**
-- `name`: Nombre único del agente
-- `instructions`: Instrucciones para el agente
-- `description`: Descripción del agente
-- `max_tokens`: Límite de tokens para respuestas
-- `temperature`: Control de aleatoriedad (0.0-1.0)
-- `top_p`: Control de diversidad (0.0-1.0)
-- `agent_model_id`: ID del modelo de IA específico
-- `tenant`: Relación con el inquilino (TenantModel)
-
-**TenantModel:**
-- `name`: Nombre del inquilino
-- `model`: Proveedor de IA ("ollama" o "gemini")
-- `ai_token`: Token de autenticación para el proveedor
-- `cwu_token`: Token único del tenant
-
-### Flujo de Trabajo
-
-1. **Inicialización**: `AgentService` obtiene el `AgentModel` de la base de datos
-2. **Creación**: `AgentFactoryService` crea una instancia de agente configurada
-3. **Configuración**: Se configura memoria, almacenamiento y knowledge base
-4. **Ejecución**: El agente procesa mensajes y genera respuestas
-
-## Configuración
-
-### Base de Datos
-El sistema utiliza PostgreSQL para:
-- Almacenamiento de memoria de agentes (tabla: `agent_memory`)
-- Almacenamiento de sesiones (tabla: `agent_sessions`)
+### `storage_factory.py`
+Factory pattern para la creación de diferentes tipos de almacenamiento. Soporta:
+- Almacenamiento en base de datos
+- Almacenamiento en archivos
+- Almacenamiento en S3
+- Caché en memoria
 
 ```python
-# Configuración de base de datos
-db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
+from agents.services.storage_factory import StorageFactory
+
+# Ejemplo de uso
+storage = StorageFactory.create_storage("database")
+storage.save(key="agent_123", data=agent_data)
 ```
 
-### Proveedores de IA
+### Carpeta `configurators/`
+Contiene configuradores específicos para diferentes proveedores de IA:
+- `openai_configurator.py`: Configuración para OpenAI GPT
+- `gemini_configurator.py`: Configuración para Google Gemini
+- `bedrock_configurator.py`: Configuración para Amazon Bedrock
+- `ollama_configurator.py`: Configuración para Ollama
+- `base_configurator.py`: Clase base para configuradores
+- `factory.py`: Factory para crear configuradores
 
-**Ollama (Local):**
-- No requiere token de API
-- Configuración automática para modelos locales
+## Patrones de Diseño
 
-**Gemini (Google AI):**
-- Requiere `ai_token` en el modelo `TenantModel`
-- Configuración automática con token de autenticación
+### Factory Pattern
+Se utiliza para crear instancias de configuradores según el proveedor:
 
-## Dependencias
+```python
+from agents.services.configurators.factory import ConfiguratorFactory
 
-### Principales
-- `django`: Framework web para modelos y ORM
-- `agno`: Librería para creación y manejo de agentes IA
-- `psycopg`: Driver PostgreSQL para Python
+configurator = ConfiguratorFactory.create_configurator("openai")
+config = configurator.get_config(model_params)
+```
 
-### Integración
-- `tools.kit.obtener_datos_de_factura`: Herramientas específicas del dominio
-- `knowledge.services.document_knowledge_base_service`: Servicio de knowledge base
-- `tenants.models`: Modelos de inquilinos
+### Strategy Pattern
+Cada configurador implementa una estrategia específica para su proveedor:
+
+```python
+class OpenAIConfigurator(BaseConfigurator):
+    def configure(self, params):
+        # Implementación específica para OpenAI
+        pass
+```
 
 ## Casos de Uso
 
-### 1. Crear y Usar un Agente
+### 1. Crear un Nuevo Agente
 ```python
-# Inicializar servicio con agente existente
-agent_service = AgentService(agent_name="asistente_ventas")
-
-# Enviar mensaje
-response, session_id = agent_service.send_message(
-    message="¿Cuáles son nuestros productos estrella?",
-    session_id="session_123"
+# Configurar el agente
+configurator = AgentServiceConfigure()
+configurator.configure_agent(
+    agent_id="new_agent",
+    model_config={
+        "provider": "openai",
+        "model": "gpt-4",
+        "temperature": 0.7
+    }
 )
 
-print(f"Respuesta: {response}")
+# Guardar configuración
+storage_service = AgentStorageService()
+storage_service.save_agent_data("new_agent", config_data)
 ```
 
-### 2. Configuración Manual de Agente
+### 2. Procesar Conversación
 ```python
-# Obtener modelo de agente
-agent_model = AgentModel.objects.get(name="mi_agente")
-
-# Crear factory
-factory = AgentFactoryService(
-    agent_model=agent_model,
-    session_id="session_123",
-    user_id="user_456"
+# Obtener respuesta del agente
+agent_service = AgentService()
+response = agent_service.generate_response(
+    agent_id="agent_123",
+    message="¿Cuál es el clima hoy?",
+    context={"location": "Madrid"}
 )
-
-# Obtener agente configurado
-agent = factory.get_agent()
-
-# Usar directamente
-response = agent.run("Tu mensaje aquí")
 ```
 
 ### 3. Cambiar Proveedor de IA
 ```python
-# Cambiar el proveedor en el tenant
-tenant = TenantModel.objects.get(name="mi_empresa")
-tenant.model = "gemini"  # Cambiar de "ollama" a "gemini"
-tenant.ai_token = "tu_token_de_gemini"
-tenant.save()
-
-# El agente automáticamente usará el nuevo proveedor
-agent_service = AgentService(agent_name="mi_agente")
+# Reconfigurar para usar diferente proveedor
+configurator_factory = ConfiguratorFactory()
+new_configurator = configurator_factory.create_configurator("gemini")
+new_config = new_configurator.configure(params)
 ```
 
-## Características Avanzadas
+## Dependencias
+- `django`: Framework web
+- `openai`: Cliente para OpenAI
+- `google-generativeai`: Cliente para Gemini
+- `boto3`: Cliente para AWS Bedrock
+- `requests`: Para llamadas HTTP a Ollama
 
-### Memoria Persistente
-- Memoria de usuario habilitada para recordar contexto entre sesiones
-- Resúmenes de sesión automáticos
-- Historial de conversaciones configurable
+## Configuración
+Las configuraciones se manejan a través de variables de entorno:
 
-### Knowledge Base
-- Integración automática con documentos del knowledge base
-- Búsqueda semántica en documentos
-- Contextualización de respuestas
+```bash
+# OpenAI
+OPENAI_API_KEY=your_openai_key
 
-### Limpieza de Respuestas
-- Eliminación automática de etiquetas `<think>` en respuestas
-- Filtrado de contenido no deseado
-- Formateo consistente de salida
+# Gemini
+GEMINI_API_KEY=your_gemini_key
 
-## Extensibilidad
+# AWS Bedrock
+AWS_ACCESS_KEY_ID=your_aws_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret
 
-### Agregar Nuevo Proveedor
-Para agregar un nuevo proveedor de IA:
+# Ollama
+OLLAMA_BASE_URL=http://localhost:11434
+```
 
-1. Actualizar `TenantModel.model` con nueva opción
-2. Modificar `AgentFactoryService.get_agent()` para manejar el nuevo proveedor
-3. Agregar configuración específica en `configure()` si es necesario
+## Testing
+Los servicios incluyen tests unitarios y de integración:
 
 ```python
-# Ejemplo de extensión
-def get_agent(self) -> Agent:
-    if self._agent_model.tenant.model == "ollama":
-        self.__model = Ollama
-    elif self._agent_model.tenant.model == "gemini":
-        self.__model = Gemini
-    elif self._agent_model.tenant.model == "nuevo_proveedor":
-        self.__model = NuevoProveedor
-    return self.configure(self.__model)
+# Ejemplo de test
+def test_agent_service_response():
+    agent_service = AgentService()
+    response = agent_service.generate_response(
+        agent_id="test_agent",
+        message="Test message"
+    )
+    assert response is not None
+    assert len(response) > 0
 ```
 
 ## Mejores Prácticas
 
-1. **Gestión de Errores**: Manejar `AgentModel.DoesNotExist` en inicialización
-2. **Logging**: Utilizar logging para debug y monitoreo
-3. **Sesiones**: Usar IDs de sesión consistentes para mantener contexto
-4. **Limpieza**: Activar limpieza de respuestas para mejor UX
-5. **Memoria**: Configurar límites apropiados de historial según el caso de uso
+1. **Manejo de Errores**: Siempre manejar excepciones de APIs externas
+2. **Logging**: Registrar operaciones importantes para debugging
+3. **Caching**: Cachear configuraciones para mejorar rendimiento
+4. **Validación**: Validar parámetros antes de enviar a APIs
+5. **Timeouts**: Configurar timeouts apropiados para APIs externas
 
-## Monitoreo y Logging
+## Monitoreo
+- Métricas de latencia de respuesta
+- Conteo de tokens utilizados
+- Errores de API por proveedor
+- Uso de memoria y CPU
+
+## Extensibilidad
+Para agregar un nuevo proveedor:
+
+1. Crear configurador específico heredando de `BaseConfigurator`
+2. Implementar métodos requeridos
+3. Registrar en `ConfiguratorFactory`
+4. Agregar tests correspondientes
 
 ```python
-import logging
-
-logger = logging.getLogger(__name__)
-
-# Los servicios incluyen logging automático para:
-# - Errores de inicialización
-# - Respuestas de agentes
-# - Operaciones de base de datos
-```
-
-## Testing
-
-```python
-# Ejemplo de test básico
-def test_agent_service_creation():
-    agent_service = AgentService(agent_name="test_agent")
-    assert agent_service.get_agent_model() is not None
-
-def test_agent_response():
-    agent_service = AgentService(agent_name="test_agent")
-    response, session_id = agent_service.send_message(
-        message="Test message",
-        session_id="test_session"
-    )
-    assert response is not None
-    assert len(response) > 0
+class NewProviderConfigurator(BaseConfigurator):
+    def configure(self, params):
+        # Implementación específica
+        pass
 ```
