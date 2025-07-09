@@ -18,8 +18,8 @@ class TelegramCommunicationService:
         if response.status_code != 200:
             raise Exception(f"Failed to send message: {response.text}")
 
-    def get_updates(self):
-        url = f"https://api.telegram.org/bot{self.telegram_communication_model.token}/getUpdates"
+    def get_updates(self, offset=0) -> dict:
+        url = f"https://api.telegram.org/bot{self.telegram_communication_model.token}/getUpdates?limit=100&offset={offset}"
         response = requests.get(url)
 
         if response.status_code != 200:

@@ -146,8 +146,7 @@ def fetch_telegram_updates_for_model(self, comm_model_id):
     try:
         comm_model = TelegramCommunicationModel.objects.get(pk=comm_model_id)
         service = TelegramCommunicationService(comm_model)
-        offset_model = TelegramChatModel.objects.last()
-        updates = service.get_updates(offset_model.message_id)
+        updates = service.get_updates()
         ok = updates.get("ok", None)
         result = updates.get("result", None)
         logger.info(f"comm_model {comm_model.pk} - ok: {ok}, result: {result}")
