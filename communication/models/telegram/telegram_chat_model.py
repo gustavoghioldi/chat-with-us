@@ -2,7 +2,7 @@ from main.models import AppModel, models
 
 
 class TelegramChatModel(AppModel):
-    update_id = models.IntegerField(
+    update_id = models.BigIntegerField(
         help_text="ID de la actualización de Telegram",
         verbose_name="ID de actualización",
     )
@@ -10,18 +10,18 @@ class TelegramChatModel(AppModel):
         help_text="Mensaje recibido del usuario",
         verbose_name="Mensaje del usuario",
     )
-    message_id = models.IntegerField(
+    message_id = models.BigIntegerField(
         help_text="ID del mensaje de Telegram",
         verbose_name="ID del mensaje",
     )
-    chat_id = models.IntegerField(
+    chat_id = models.BigIntegerField(
         help_text="ID del chat de Telegram",
     )
     is_bot = models.BooleanField(
         default=False,
         help_text="Indica si el mensaje es de un bot",
     )
-    date = models.IntegerField(
+    date = models.BigIntegerField(
         help_text="Fecha del mensaje en formato Unix timestamp",
         verbose_name="Fecha del mensaje",
     )
