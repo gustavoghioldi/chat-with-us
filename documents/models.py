@@ -13,11 +13,14 @@ from tenants.models import TenantModel
 def user_document_upload_path(instance, filename):
     """
     Genera la ruta donde se guardará el documento.
-    Estructura: documents/tenant_name/filename_timestamp.extension
+    Estructura: documents/tenant_name/unique_filename
 
-    El timestamp se agrega antes de la extensión para evitar nombres duplicados.
-    Formato: documents/tenant_name/archivo_20250618_143052_123456.pdf
+    Usa DocumentService para generar nombres únicos con timestamp y UUID.
+    Formato: documents/tenant_name/archivo_20250618_143052_123456_abc123de.pdf
     """
+    # Import here to avoid circular imports
+    from .services import DocumentService
+
     tenant_name = instance.tenant.name if instance.tenant else "no_tenant"
 
     # Limpiar el nombre del tenant para usar como directorio
@@ -26,25 +29,10 @@ def user_document_upload_path(instance, filename):
     ).rstrip()
     tenant_dir = tenant_dir.replace(" ", "_")
 
-    # Separar nombre y extensión del archivo
-    name, ext = os.path.splitext(filename)
+    # Usar el servicio para generar un nombre único
+    unique_filename = DocumentService.generate_unique_filename(filename)
 
-    # Limpiar el nombre del archivo
-    clean_name = "".join(
-        c for c in name if c.isalnum() or c in (" ", "-", "_")
-    ).rstrip()
-    clean_name = clean_name.replace(" ", "_")
-
-    # Generar timestamp único
-    now = timezone.now()
-    timestamp = now.strftime("%Y%m%d_%H%M%S_%f")[
-        :-3
-    ]  # Incluir microsegundos (primeros 3 dígitos)
-
-    # Construir nombre final: nombre_timestamp.extension
-    final_filename = f"{clean_name}_{timestamp}{ext.lower()}"
-
-    return f"documents/{tenant_dir}/{final_filename}"
+    return f"documents/{tenant_dir}/{unique_filename}"
 
 
 class DocumentModel(AppModel):

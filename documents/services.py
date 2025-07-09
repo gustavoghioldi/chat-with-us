@@ -21,14 +21,16 @@ class DocumentService:
     @staticmethod
     def generate_unique_filename(original_filename: str) -> str:
         """
-        Genera un nombre de archivo único agregando timestamp.
+        Genera un nombre de archivo único agregando timestamp y UUID.
 
         Args:
             original_filename: Nombre original del archivo
 
         Returns:
-            str: Nombre único con timestamp
+            str: Nombre único con timestamp y UUID
         """
+        import uuid
+
         name, ext = os.path.splitext(original_filename)
 
         # Limpiar el nombre del archivo
@@ -37,13 +39,14 @@ class DocumentService:
         ).rstrip()
         clean_name = clean_name.replace(" ", "_")
 
-        # Generar timestamp único
+        # Generar timestamp único con microsegundos completos
         now = timezone.now()
-        timestamp = now.strftime("%Y%m%d_%H%M%S_%f")[
-            :-3
-        ]  # Incluir microsegundos (primeros 3 dígitos)
+        timestamp = now.strftime("%Y%m%d_%H%M%S_%f")
 
-        return f"{clean_name}_{timestamp}{ext.lower()}"
+        # Agregar parte de UUID para mayor unicidad
+        unique_suffix = str(uuid.uuid4())[:8]
+
+        return f"{clean_name}_{timestamp}_{unique_suffix}{ext.lower()}"
 
     @staticmethod
     def create_document(
