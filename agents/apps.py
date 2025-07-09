@@ -10,4 +10,4 @@ class AgentsConfig(AppConfig):
         Método que se ejecuta cuando la app está lista.
         Importa los signals para que se registren automáticamente.
         """
-        import agents.signals
+        import agents.signals.telegram_new_message  # noqa: F401

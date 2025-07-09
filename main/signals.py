@@ -118,6 +118,13 @@ def detect_model_changes(sender, instance, created, **kwargs):
                 )
 
     # Emitir el signal personalizado con toda la información
+    logger.info(
+        f"🚀 Emitiendo signal model_changed para {sender._meta.verbose_name}, created={created}"
+    )
+    print(
+        f"🚀 Emitiendo signal model_changed para {sender._meta.verbose_name}, created={created}"
+    )
+
     model_changed.send(
         sender=sender,
         instance=instance,
@@ -125,6 +132,9 @@ def detect_model_changes(sender, instance, created, **kwargs):
         updated_fields=updated_fields,
         change_type="created" if created else "updated",
     )
+
+    logger.info(f"✅ Signal model_changed emitido para {sender._meta.verbose_name}")
+    print(f"✅ Signal model_changed emitido para {sender._meta.verbose_name}")
 
 
 # Función helper para conectar signals desde otras apps

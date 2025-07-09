@@ -1,50 +1,74 @@
 from main.models import AppModel, models
 
 
-class TelegramUserModel(AppModel):
-    telegram_id = models.BigIntegerField(
-        unique=True, help_text="ID de usuario de Telegram"
-    )
-    is_bot = models.BooleanField(default=False)
-    first_name = models.CharField(max_length=150)
-    last_name = models.CharField(max_length=150, blank=True, null=True)
-    language_code = models.CharField(max_length=10, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name or ''} ({self.telegram_id})"
-
-
 class TelegramChatModel(AppModel):
-    chat_id = models.BigIntegerField(unique=True, help_text="ID del chat de Telegram")
-    first_name = models.CharField(max_length=150, blank=True, null=True)
-    last_name = models.CharField(max_length=150, blank=True, null=True)
-    type = models.CharField(
-        max_length=20, help_text="Tipo de chat (private, group, etc)"
+    update_id = models.IntegerField(
+        help_text="ID de la actualización de Telegram",
+        verbose_name="ID de actualización",
     )
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name or ''} ({self.chat_id})"
-
-
-class TelegramMessageModel(AppModel):
-    update_id = models.BigIntegerField(help_text="ID de actualización de Telegram")
-    message_id = models.BigIntegerField(help_text="ID del mensaje de Telegram")
-    from_user = models.ForeignKey(
-        "TelegramUserModel",
+    text = models.TextField(
+        help_text="Mensaje recibido del usuario",
+        verbose_name="Mensaje del usuario",
+    )
+    message_id = models.IntegerField(
+        help_text="ID del mensaje de Telegram",
+        verbose_name="ID del mensaje",
+    )
+    chat_id = models.IntegerField(
+        help_text="ID del chat de Telegram",
+    )
+    is_bot = models.BooleanField(
+        default=False,
+        help_text="Indica si el mensaje es de un bot",
+    )
+    date = models.IntegerField(
+        help_text="Fecha del mensaje en formato Unix timestamp",
+        verbose_name="Fecha del mensaje",
+    )
+    first_name = models.CharField(
+        max_length=255,
+        help_text="Nombre del usuario que envió el mensaje",
+        verbose_name="Nombre del usuario",
+    )
+    last_name = models.CharField(
+        max_length=255,
+        help_text="Apellido del usuario que envió el mensaje",
+        verbose_name="Apellido del usuario",
+        null=True,
+        blank=True,
+    )
+    language_code = models.CharField(
+        max_length=2,
+        help_text="Código de idioma del usuario",
+        verbose_name="Código de idioma",
+        null=True,
+        blank=True,
+    )
+    error = models.CharField(
+        help_text="Mensaje de error si hubo un problema al procesar el mensaje",
+        verbose_name="Mensaje de error",
+        null=True,
+        blank=True,
+    )
+    agent = models.ForeignKey(
+        "agents.AgentModel",
         on_delete=models.CASCADE,
-        related_name="messages_from",
-        help_text="Usuario que envía el mensaje",
+        related_name="telegram_chats",
+        help_text="Agente asociado a este chat de Telegram",
+        verbose_name="Agente asociado",
+        null=True,
+        blank=True,
     )
-    chat = models.ForeignKey(
-        "TelegramChatModel",
-        on_delete=models.CASCADE,
-        related_name="messages",
-        help_text="Chat al que pertenece el mensaje",
-    )
-    telegram_datetime = models.DateTimeField(
-        help_text="Fecha del mensaje (timestamp de Telegram)"
-    )
-    text = models.TextField(blank=True, null=True, help_text="Texto del mensaje")
 
-    def __str__(self):
-        return f"Mensaje {self.message_id} en chat {self.chat_id}"
+    telegram_communication = models.ForeignKey(
+        "communication.TelegramCommunicationModel",
+        on_delete=models.CASCADE,
+        related_name="telegram_chats",
+        help_text="Modelo de comunicación de Telegram asociado a este chat",
+        verbose_name="Modelo de comunicación de Telegram",
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        unique_together = ("chat_id", "message_id")

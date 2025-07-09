@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "django_filters",
     "corsheaders",
+    "django_celery_beat",
     # apps
     "main",  # Para comandos de management
     "analysis",
@@ -32,6 +33,8 @@ INSTALLED_APPS = [
     "knowledge",
     "tenants",
     "tools",
+    "communication",
+    "webhooks",  # Para webhooks de Telegram
 ]
 
 MIDDLEWARE = [
@@ -114,6 +117,17 @@ IA_MODEL_EMBEDDING = os.environ.get("IA_MODEL_EMBEDDING", "llama3.2:3b")
 # Celery Configuration
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+
+# Celery Beat Scheduler - Usar Django Database Scheduler
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# Celery Beat Schedule (esto se puede manejar desde Django Admin)
+CELERY_BEAT_SCHEDULE = {
+    "check-telegram-updates-every-10-seconds": {
+        "task": "communication.tasks.telegram_get_updates.check_telegram_updates",
+        "schedule": 10.0,  # cada 10 segundos
+    },
+}
 
 # Django REST Framework Configuration
 REST_FRAMEWORK = {
