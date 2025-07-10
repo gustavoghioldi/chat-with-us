@@ -42,37 +42,17 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
    cd chat-with-us
    ```
 
-2. **Start PostgreSQL Containers**
+2. **Start project containers**
    ```bash
-   # AI Database with vector support
-   docker run -d \
-     -e POSTGRES_DB=ai \
-     -e POSTGRES_USER=ai \
-     -e POSTGRES_PASSWORD=ai \
-     -e PGDATA=/var/lib/postgresql/data/pgdata \
-     -v pgvolume:/var/lib/postgresql/data \
-     -p 5532:5432 \
-     --name pgvector \
-     agnohq/pgvector:16
-
-   # Application Database
-   docker run -d \
-     -e POSTGRES_PASSWORD=barba \
-     -v appvolume:/var/lib/postgresql/data \
-     -p 5632:5432 \
-     --name pgapp \
-     postgres:latest
+   docker compose up -d
    ```
-2. **If having any problem with psycopg:**
+   this will set up pgvector, postgres, grafana and redis
+3. **If having any problem with psycopg:**
    ```bash
    sudo apt-get update
    sudo apt-get install libpq-dev
    ```
-
-3. **Create Database**
-   - Open DBeaver
-   - Create a new database named `barbadb`
-
+   
 4. **Set up Python Environment**
    ```bash
    python3 -m venv .venv
@@ -89,23 +69,24 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
    ```bash
    python manage.py migrate
    ```
-7. **Run redis**
-   ```bash
-   docker run -p 6379:6379 redis
-   ```
 
-8. **Run the Development Server**
+7. **Run the Development Server**
    ```bash
    python manage.py runserver
    ```
 
-9. **Run Celery**
-     ```
+8. **Run Celery**
+     ```bash
      celery -A main worker --loglevel=info
      ```
+    
+9. **Import grafana configuration**
+    </br>Grafana is available at `http://localhost:3000`.
+    </br>Admin credentials are ``` USER: admin PASSWORD: admin```.
+    </br>You can change them on your first login.
+
+----
 The application will be available at `http://localhost:8000`
-
-
 
 ## Development Workflow
 

@@ -1,0 +1,58 @@
+version: "3.8"
+
+networks:
+  xmen:
+    driver: bridge
+
+volumes:
+  pgvolume:
+  appvolume:
+
+services:
+  professor:
+    image: agnohq/pgvector:16
+    container_name: professor
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ai
+      POSTGRES_USER: ai
+      POSTGRES_PASSWORD: ai
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - pgvolume:/var/lib/postgresql/data
+    ports:
+      - "5532:5432"
+    networks:
+      - xmen
+
+  beast:
+    image: postgres:latest
+    container_name: beast
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: barba
+      POSTGRES_DB: barbadb
+    volumes:
+      - appvolume:/var/lib/postgresql/data
+    ports:
+      - "5632:5432"
+    networks:
+      - xmen
+
+  cyclops:
+    image: grafana/grafana:latest
+    container_name: cyclops
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - xmen
+
+  quicksilver:
+    image: redis:latest
+    container_name: quicksilver
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - xmen
