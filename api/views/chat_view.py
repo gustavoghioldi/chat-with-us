@@ -5,6 +5,7 @@ from agents.services.agent_service import AgentService
 from api.permissions_classes.is_tenant_authenticated import IsTenantAuthenticated
 from api.serializers.chat_serializer import ChatSerializer
 from chats.services import ChatService
+from quota.services.quota_service import QuotaService
 
 
 class ChatView(APIView):
@@ -24,8 +25,17 @@ class ChatView(APIView):
                         {"error": "El agente no pertenece al tenant autenticado"},
                         status=403,
                     )
+            # Validación y consumo de tokens + ejecución del mensaje
+            try:
+                text, session_id = QuotaService.process_agent_request(
+                    agent=agent_service,
+                    tenant=request.tenant,
+                    prompt=message,
+                    session_id=session_id
+                )
+            except Exception as e:
+                return Response({"error": str(e)}, status=403)
 
-            text, session_id = agent_service.send_message(message, session_id)
             response = {
                 "agent": agent,
                 "message": message,
