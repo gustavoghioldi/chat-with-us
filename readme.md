@@ -42,6 +42,77 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
    cd chat-with-us
    ```
 
+2. **Start PostgreSQL Containers**
+   ```bash
+   # AI Database with vector support
+   docker run -d \
+     -e POSTGRES_DB=ai \
+     -e POSTGRES_USER=ai \
+     -e POSTGRES_PASSWORD=ai \
+     -e PGDATA=/var/lib/postgresql/data/pgdata \
+     -v pgvolume:/var/lib/postgresql/data \
+     -p 5532:5432 \
+     --name pgvector \
+     agnohq/pgvector:16
+
+   # Application Database
+   docker run -d \
+     -e POSTGRES_PASSWORD=barba \
+     -v appvolume:/var/lib/postgresql/data \
+     -p 5632:5432 \
+     --name pgapp \
+     postgres:latest
+   ```
+2. **If having any problem with psycopg:**
+   ```bash
+   sudo apt-get update
+   sudo apt-get install libpq-dev
+   ```
+
+3. **Create Database**
+   - Open DBeaver
+   - Create a new database named `barbadb`
+
+4. **Set up Python Environment**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+5. **Environment Configuration**
+   ```bash
+   # Request and copy the .env file to the project root
+   ```
+
+6. **Initialize Database**
+   ```bash
+   python manage.py migrate
+   ```
+7. **Run redis**
+   ```bash
+   docker run -p 6379:6379 redis
+   ```
+
+8. **Run the Development Server**
+   ```bash
+   python manage.py runserver
+   ```
+
+9. **Run Celery**
+     ```
+     celery -A main worker --loglevel=info
+     ```
+The application will be available at `http://localhost:8000`
+
+## Quick Start Docker compose
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd chat-with-us
+   ```
+
 2. **Start project containers**
    ```bash
    docker compose up -d
@@ -52,7 +123,7 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
    sudo apt-get update
    sudo apt-get install libpq-dev
    ```
-   
+
 4. **Set up Python Environment**
    ```bash
    python3 -m venv .venv
@@ -79,7 +150,7 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
      ```bash
      celery -A main worker --loglevel=info
      ```
-    
+
 9. **Import grafana configuration**
     </br>Grafana is available at `http://localhost:3000`.
     </br>Admin credentials are ``` USER: admin PASSWORD: admin```.
@@ -87,6 +158,7 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
 
 ----
 The application will be available at `http://localhost:8000`
+
 
 ## Development Workflow
 
