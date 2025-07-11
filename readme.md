@@ -105,6 +105,59 @@ A comprehensive Django-based platform for creating and managing AI-powered chat 
      ```
 The application will be available at `http://localhost:8000`
 
+## Quick Start Docker compose
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd chat-with-us
+   ```
+
+2. **Start project containers**
+   ```bash
+   docker compose up -d
+   ```
+   this will set up pgvector, postgres, grafana and redis
+3. **If having any problem with psycopg:**
+   ```bash
+   sudo apt-get update
+   sudo apt-get install libpq-dev
+   ```
+
+4. **Set up Python Environment**
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+5. **Environment Configuration**
+   ```bash
+   # Request and copy the .env file to the project root
+   ```
+
+6. **Initialize Database**
+   ```bash
+   python manage.py migrate
+   ```
+
+7. **Run the Development Server**
+   ```bash
+   python manage.py runserver
+   ```
+
+8. **Run Celery**
+     ```bash
+     celery -A main worker --loglevel=info
+     ```
+
+9. **Import grafana configuration**
+    </br>Grafana is available at `http://localhost:3000`.
+    </br>Admin credentials are ``` USER: admin PASSWORD: admin```.
+    </br>You can change them on your first login.
+
+----
+The application will be available at `http://localhost:8000`
 
 
 ## Development Workflow
