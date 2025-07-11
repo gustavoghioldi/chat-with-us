@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "knowledge",
     "tenants",
     "tools",
+    "logger"
 ]
 
 MIDDLEWARE = [
@@ -177,6 +178,10 @@ LOGGING = {
             "filename": BASE_DIR / "logs" / "django_errors.log",
             "formatter": "verbose",
         },
+        "db_log": {
+            'level': 'DEBUG',
+            'class': 'logger.db_log_handler.DatabaseLogHandler'
+        },
     },
     "root": {
         "level": "INFO",
@@ -189,7 +194,7 @@ LOGGING = {
             "propagate": False,
         },
         "django.request": {
-            "handlers": ["console", "error_file"],
+            "handlers": ["db_log","console", "error_file"],
             "level": "ERROR",
             "propagate": False,
         },
