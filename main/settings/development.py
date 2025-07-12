@@ -60,10 +60,14 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
         },
+        "db_log": {
+            'level': 'DEBUG',
+            'class': 'logger.db_log_handler.DatabaseLogHandler'
+        }
     },
     "loggers": {
         "django": {
-            "handlers": ["console"],
+            "handlers": ["db_log","console"],
             "level": "INFO",
         },
         "agents": {
